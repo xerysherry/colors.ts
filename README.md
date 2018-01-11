@@ -51,8 +51,8 @@ In /sample/, you will found some sample. It is very easy and clear.
 Screenshot
 ----------
 
-[windows_cmd](https://raw.githubusercontent.com/xerysherry/colors.ts/master/screenshot/windows_cmd.png)
-[centos_console](https://raw.githubusercontent.com/xerysherry/colors.ts/master/screenshot/centos_console.png)
+![windows_cmd](https://raw.githubusercontent.com/xerysherry/colors.ts/master/screenshot/windows_cmd.png)
+![centos_console](https://raw.githubusercontent.com/xerysherry/colors.ts/master/screenshot/centos_console.png)
 
 Enjoy it!
 
@@ -107,7 +107,7 @@ console.log("this is a error".error);
 
 截图
 ----
-[windows_cmd](https://raw.githubusercontent.com/xerysherry/colors.ts/master/screenshot/windows_cmd.png)
-[centos_console](https://raw.githubusercontent.com/xerysherry/colors.ts/master/screenshot/centos_console.png)
+![windows_cmd](https://raw.githubusercontent.com/xerysherry/colors.ts/master/screenshot/windows_cmd.png)
+![centos_console](https://raw.githubusercontent.com/xerysherry/colors.ts/master/screenshot/centos_console.png)
 
 请使用它，希望你们喜欢！
