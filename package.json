@@ -1,0 +1,17 @@
+{
+  "name": "colorsts",
+  "version": "1.0.0",
+  "main": "app.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node ./build/sample/sample.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "apache",
+  "dependencies": {},
+  "description": "",
+  "devDependencies": {
+    "typescript": "^2.6.2"
+  }
+}
