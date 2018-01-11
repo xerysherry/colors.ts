@@ -1,6 +1,25 @@
 Colors For Typescript/TypeScript 
 ================================
 
+How to get?
+---------
+
+first Clone it
+
+```
+git clone https://github.com/xerysherry/colors.ts.git
+```
+
+or Download it in here [https://github.com/xerysherry/colors.ts](https://github.com/xerysherry/colors.ts).
+
+Next
+
+```
+npm install
+npm run build
+npm run start
+```
+
 How to install?
 -----------
 
@@ -58,6 +77,25 @@ Enjoy it!
 
 TypeScript 命令行输出颜色库
 =========================
+
+如何获得？
+--------
+
+首先克隆它
+
+```
+git clone https://github.com/xerysherry/colors.ts.git
+```
+
+或者在[https://github.com/xerysherry/colors.ts](https://github.com/xerysherry/colors.ts)这里下载它
+
+然后依次执行
+
+```
+npm install
+npm run build
+npm run start
+```
 
 如何安装？
 --------
