@@ -1,3 +1,18 @@
+/* Copyright xerysherry 2018
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ * 
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ * 
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
 //this map from nodeJS/color.js
 const _codes: { [key: string]: [number, number] } = {
     reset: [0, 0],
@@ -30,7 +45,7 @@ const _codes: { [key: string]: [number, number] } = {
     bgCyan: [46, 49],
     bgWhite: [47, 49],
 };
-const _default_theme:Colors.Theme = {
+const _default_theme:{[key:string]:string} = {
     verbose: "white",
     info: "green",
     debug: "blue",
@@ -48,7 +63,7 @@ const _default_theme:Colors.Theme = {
     custom9: "white",
 }
 let _enable:boolean = true;
-let _theme:Colors.Theme = _default_theme
+let _theme:{[key:string]:string} = _default_theme
 
 function codesInit() {
     for (const key in _codes) {
@@ -109,28 +124,14 @@ export function Colors(color: string, value: string):string
     return value;
 }
 export namespace Colors {
-    export interface Theme {
-        verbose?: string;
-        info?: string;
-        debug?: string;
-        error?: string;
-
-        custom0?:string;
-        custom1?:string;
-        custom2?:string;
-        custom3?:string;
-        custom4?:string;
-        custom5?:string;
-        custom6?:string;
-        custom7?:string;
-        custom8?:string;
-        custom9?:string;
-    }
     export function enable(value: boolean = true) {
         _enable = value;
     }
-    export function theme(theme: Theme = _default_theme) {
-        _theme = theme;
+    export function theme(theme: {[key:string]:string} = _default_theme) {
+        if(theme == null)
+            _theme = _default_theme;
+        else
+            _theme = theme;
     }
 }
 
