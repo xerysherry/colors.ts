@@ -5,7 +5,7 @@
   "scripts": {
     "build": "tsc",
     "start": "node ./build/sample/sample.js",
-    "test": "echo ===Sample1===&node ./build/sample/sample.js &echo ===Sample2===&node ./build/sample/sample1.js&echo ===Sample3===&node ./build/sample/sample2.js"
+    "test": "echo ===Sample1===&&node ./build/sample/sample.js &&echo ===Sample2===&&node ./build/sample/sample1.js&&echo ===Sample3===&&node ./build/sample/sample2.js"
   },
   "keywords": [],
   "author": "",
