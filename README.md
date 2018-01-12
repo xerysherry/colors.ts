@@ -17,7 +17,7 @@ Next
 ```
 npm install
 npm run build
-npm run start
+npm run test
 ```
 
 How to install?
@@ -94,7 +94,7 @@ git clone https://github.com/xerysherry/colors.ts.git
 ```
 npm install
 npm run build
-npm run start
+npm run test
 ```
 
 如何安装？
