@@ -31,17 +31,17 @@ interface String {
     magenta: string;
     cyan: string;
     white: string;
-    gray: string;
-    grey: string;
+    //gray: string;
+    //grey: string;
 
-    bgBlack: string;
-    bgRed: string;
-    bgGreen: string;
-    bgYellow: string;
-    bgBlue: string;
-    bgMagenta: string;
-    bgCyan: string;
-    bgWhite: string;
+    bg_black: string;
+    bg_red: string;
+    bg_green: string;
+    bg_yellow: string;
+    bg_blue: string;
+    bg_magenta: string;
+    bg_cyan: string;
+    bg_white: string;
 
     //theme
     verbose: string;
@@ -59,4 +59,26 @@ interface String {
     custom7: string;
     custom8: string;
     custom9: string;
+
+    color_at_256(idx:number):string;
+    color_bg_at_256(idx:number):string;
+    gray(level:number):string;
+    grey(level:number):string;
+    gray_bg(level:number):string;
+    grey_bg(level:number):string;
+
+    colors(color:string|string[]):string;
+    paint(paint:{key:string|RegExp, colors:string|string[]}[], other?:any[]):string;
+
+    up(n?:number):string;
+    down(n?:number):string;
+    right(n?:number):string;
+    left(n?:number):string;
+    
+    next_line(n?:number):string;
+    prev_line(n?:number):string;
+    column(n:number):string;
+    position(x:number, y:number):string;
+    save_position(slot:number):string;
+    load_position(slot:number):string;
 }
