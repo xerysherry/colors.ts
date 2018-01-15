@@ -91,7 +91,7 @@ declare global {
 
 declare namespace Colors
 {
-    export function Colors(color: string|string[], value: string):string;
+    export function colors(color: string|string[], value: string):string;
     export function enable(value?: boolean): void;
     export function theme(theme?: {[key:string]:string|string[]}): void;
     export function paint(paint:{key:string|string[]|RegExp|RegExp[], colors:string|string[]}[], value:string):string
