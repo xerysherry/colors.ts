@@ -1,6 +1,6 @@
 {
   "name": "colors.ts",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "main": "dist/colors.js",
   "scripts": {
     "build": "tsc",
