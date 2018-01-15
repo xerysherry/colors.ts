@@ -1,6 +1,6 @@
 require('../lib/colors');
 
-let ts = `Class Greeter {
+let ts = `class Greeter {
     greeting: string;
     constructor(message: string) {
         this.greeting = message;
@@ -18,16 +18,16 @@ button.onclick = function() {
     alert(greeter.greet());
 }
 
-document.body.appendChild(button);`;
+document.body.appendChild(button);
+`;
 
 console.log(ts.paint([
-    {key:new RegExp("let|new|alert|class", "g"), colors:"red"},
+    {key:["let", "new", "alert", "class"], colors:"red"},
     {key:"this", colors:"lightgreen"},
     {key:"return", colors:"green"},
     {key:"document", colors:"green"},
-    {key:new RegExp("string|number|function", "g"), colors:"#6600FF"},
+    {key:new RegExp("string|number|function", "g"), colors:["#6600FF", "bold"]},
     {key:new RegExp("\\{|\\}", "g"), colors:"bold"},
     {key:new RegExp("\\(|\\)", "g"), colors:"bold"},
-    {key:new RegExp('"[^"]*"', "g"), colors:["lightyellow", "underline"]},
-    {key:new RegExp("'[^']*'", "g"), colors:["lightyellow", "underline"]},
+    {key:[/"[^"]*"/g, /'[^']*'/g], colors:["lightyellow", "underline"]},
 ]))

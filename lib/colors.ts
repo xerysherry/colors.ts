@@ -163,6 +163,7 @@ function _get_web_safe_code(hexcode:string,
             c = item.c;
         }
     }
+    map[hexcode] = c;
     return c;
 }
 
@@ -440,7 +441,33 @@ export namespace Colors {
         else
             _theme = theme;
     }
-    export function paint(paint:{key:string|RegExp, colors:string|string[], other?:any[]}[], value:string):string {
+
+    function replace_all(value:string, search:string, replace:string):string {
+        if(search == null || search.length == 0)
+            return value;
+        let idx = -1;
+        let array:string[] = [];
+        while(true)
+        {
+            idx = value.indexOf(search);
+            if(idx < 0)
+            {
+                array.push(value);
+                break;
+            }
+            array.push(value.slice(0, idx));
+            array.push(replace);
+            value = value.slice(idx + search.length);
+        }
+        value = "";
+        for(let i=0; i<array.length; ++i)
+        {
+            value += array[i];
+        }
+        return value;
+    }
+
+    export function paint(paint:{key:string|string[]|RegExp|RegExp[], colors:string|string[]}[], value:string):string {
         if(!_enable || paint == null || value == null || value.length == 0 || paint.length == 0)
             return value;
         for(let i=0; i<paint.length; ++i)
@@ -448,14 +475,44 @@ export namespace Colors {
             let item=paint[i];
             let key = item.key;
             let colors = item.colors;
-            let other = item.other;
 
             if(key == null || colors == null || colors.length == 0)
                 continue;
 
-            value = value.replace(key, (ar) => {
-                return Colors(colors, ar);
-            })
+            if(typeof(key) == "string")
+            {
+                value = replace_all(value, key, Colors(colors, key))
+            }
+            else if(key instanceof RegExp)
+            {
+                value = value.replace(key, (ar) => {
+                    return Colors(colors, ar);
+                })
+            }
+            else
+            {
+                if(key.length == 0)
+                    return value;
+                if(typeof(key[0]) == "string")
+                {
+                    //string[]
+                    for(let idx=0; idx<key.length; ++idx)
+                    {
+                        let k = <string>key[idx];
+                        value = replace_all(value, k, Colors(colors, k));
+                    }
+                }
+                else
+                {
+                    //RegExp[]
+                    for(let idx=0; idx<key.length; ++idx)
+                    {
+                        value = value.replace(key[idx], (ar) => {
+                            return Colors(colors, ar);
+                        })
+                    }
+                }
+            }
         }
         return value;
     }

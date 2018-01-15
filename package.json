@@ -10,7 +10,9 @@
   "keywords": [],
   "author": "",
   "license": "apache",
-  "dependencies": {},
+  "dependencies": {
+    "@types/node": "^9.3.0"
+  },
   "description": "",
   "devDependencies": {
     "typescript": "^2.6.2"

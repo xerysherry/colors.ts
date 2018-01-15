@@ -68,7 +68,10 @@ interface String {
     grey_bg(level:number):string;
 
     colors(color:string|string[]):string;
-    paint(paint:{key:string|RegExp, colors:string|string[]}[], other?:any[]):string;
+    paint(  paint:{
+                key:string|string[]|RegExp|RegExp[], 
+                colors:string|string[]
+            }[]):string;
 
     up(n?:number):string;
     down(n?:number):string;
