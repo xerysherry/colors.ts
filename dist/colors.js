@@ -183,6 +183,7 @@ function _color_web_safe_map_init() {
 var _default_theme = {
     verbose: "white",
     info: "green",
+    warning: "yellow",
     debug: "blue",
     error: "red",
     custom0: "white",
@@ -280,7 +281,7 @@ function _codes_init() {
     };
     String.prototype.grey_bg = String.prototype.gray_bg;
     String.prototype.colors = function (color) {
-        return Colors(color, this);
+        return colors(color, this);
     };
     String.prototype.paint = function (pt) {
         return paint(pt, this);
@@ -325,7 +326,7 @@ function _theme_init() {
                     var s = _theme[key_2];
                     if (s == null)
                         return this;
-                    return Colors(s, this);
+                    return colors(s, this);
                 }
                 return this;
             },
@@ -340,12 +341,12 @@ function _theme_init() {
 _color_web_safe_map_init();
 _codes_init();
 _theme_init();
-function Colors(color, value) {
+function colors(color, value) {
     if (_enable) {
         if (typeof (color) == "string") {
             var s = _theme[color];
             if (s != null)
-                return Colors(s, value);
+                return colors(s, value);
             var code = _get_code(color);
             if (code == null)
                 return value;
@@ -363,7 +364,7 @@ function Colors(color, value) {
     }
     return value;
 }
-exports.Colors = Colors;
+exports.colors = colors;
 function enable(value) {
     if (value === void 0) { value = true; }
     _enable = value;
@@ -404,15 +405,15 @@ function paint(paint, value) {
     var _loop_3 = function (i) {
         var item = paint[i];
         var key_3 = item.key;
-        var colors = item.colors;
-        if (key_3 == null || colors == null || colors.length == 0)
+        var cs = item.colors;
+        if (key_3 == null || cs == null || colors.length == 0)
             return "continue";
         if (typeof (key_3) == "string") {
-            value = replace_all(value, key_3, Colors(colors, key_3));
+            value = replace_all(value, key_3, colors(cs, key_3));
         }
         else if (key_3 instanceof RegExp) {
             value = value.replace(key_3, function (ar) {
-                return Colors(colors, ar);
+                return colors(cs, ar);
             });
         }
         else {
@@ -421,13 +422,13 @@ function paint(paint, value) {
             if (typeof (key_3[0]) == "string") {
                 for (var idx = 0; idx < key_3.length; ++idx) {
                     var k = key_3[idx];
-                    value = replace_all(value, k, Colors(colors, k));
+                    value = replace_all(value, k, colors(cs, k));
                 }
             }
             else {
                 for (var idx = 0; idx < key_3.length; ++idx) {
                     value = value.replace(key_3[idx], function (ar) {
-                        return Colors(colors, ar);
+                        return colors(cs, ar);
                     });
                 }
             }
