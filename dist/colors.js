@@ -179,19 +179,6 @@ function _color_web_safe_map_init() {
             c: _color_256bits_bg + pos + _color_256bits_bg_endl
         });
     }
-    for (var i = 1; i < 25; ++i) {
-        var k = 8 + (i - 1) * 10;
-        var h = k.toString(16);
-        if (k < 0x10)
-            h = "0" + h;
-        h = h + h + h;
-        var code = _get_gray_code(i);
-        _color_web_safe_map[h] = code;
-        _color_web_safe_list.push({ r: k, g: k, b: k, c: code });
-        code = _get_gray_bg_code(i);
-        _color_bg_web_safe_map[h] = code;
-        _color_bg_web_safe_list.push({ r: k, g: k, b: k, c: code });
-    }
 }
 var _default_theme = {
     verbose: "white",
