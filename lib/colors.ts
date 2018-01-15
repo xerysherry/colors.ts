@@ -232,18 +232,12 @@ function _color_web_safe_map_init(): void {
         if(k < 0x10)
             h = "0"+h;
         h = h + h + h;
-        
-        let test = k + " "
         let code = _get_gray_code(i);
         _color_web_safe_map[h] = code;
         _color_web_safe_list.push({ r: k, g: k, b: k, c: code });
-        test += code + h+ " "
         code = _get_gray_bg_code(i);
         _color_bg_web_safe_map[h] = code
         _color_bg_web_safe_list.push({ r: k, g: k, b: k, c: code })
-        test += code + h+ _reset_ctrl;
-        console.log(test)
-        
     }
 }
 
