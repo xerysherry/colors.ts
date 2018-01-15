@@ -1,4 +1,4 @@
-import {Colors} from '../lib/colors'
+import Colors = require('../lib/colors')
 
 console.log('[' + 'INFO'.info +  '] everything is ok!');
 console.log('[' + 'DEBUG'.debug +'] wait! something is wrong!');

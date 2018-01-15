@@ -282,8 +282,8 @@ function _codes_init() {
     String.prototype.colors = function (color) {
         return Colors(color, this);
     };
-    String.prototype.paint = function (paint) {
-        return Colors.paint(paint, this);
+    String.prototype.paint = function (pt) {
+        return paint(pt, this);
     };
     String.prototype.up = function (n) {
         return _up(n) + this;
@@ -364,83 +364,81 @@ function Colors(color, value) {
     return value;
 }
 exports.Colors = Colors;
-(function (Colors) {
-    function enable(value) {
-        if (value === void 0) { value = true; }
-        _enable = value;
-    }
-    Colors.enable = enable;
-    function theme(theme) {
-        if (theme === void 0) { theme = _default_theme; }
-        if (theme == null)
-            _theme = _default_theme;
-        else
-            _theme = theme;
-    }
-    Colors.theme = theme;
-    function replace_all(value, search, replace) {
-        if (search == null || search.length == 0)
-            return value;
-        var idx = -1;
-        var array = [];
-        while (true) {
-            idx = value.indexOf(search);
-            if (idx < 0) {
-                array.push(value);
-                break;
-            }
-            array.push(value.slice(0, idx));
-            array.push(replace);
-            value = value.slice(idx + search.length);
-        }
-        value = "";
-        for (var i = 0; i < array.length; ++i) {
-            value += array[i];
-        }
+function enable(value) {
+    if (value === void 0) { value = true; }
+    _enable = value;
+}
+exports.enable = enable;
+function theme(theme) {
+    if (theme === void 0) { theme = _default_theme; }
+    if (theme == null)
+        _theme = _default_theme;
+    else
+        _theme = theme;
+}
+exports.theme = theme;
+function replace_all(value, search, replace) {
+    if (search == null || search.length == 0)
         return value;
+    var idx = -1;
+    var array = [];
+    while (true) {
+        idx = value.indexOf(search);
+        if (idx < 0) {
+            array.push(value);
+            break;
+        }
+        array.push(value.slice(0, idx));
+        array.push(replace);
+        value = value.slice(idx + search.length);
     }
-    function paint(paint, value) {
-        if (!_enable || paint == null || value == null || value.length == 0 || paint.length == 0)
-            return value;
-        var _loop_3 = function (i) {
-            var item = paint[i];
-            var key_3 = item.key;
-            var colors = item.colors;
-            if (key_3 == null || colors == null || colors.length == 0)
-                return "continue";
-            if (typeof (key_3) == "string") {
-                value = replace_all(value, key_3, Colors(colors, key_3));
-            }
-            else if (key_3 instanceof RegExp) {
-                value = value.replace(key_3, function (ar) {
-                    return Colors(colors, ar);
-                });
+    value = "";
+    for (var i = 0; i < array.length; ++i) {
+        value += array[i];
+    }
+    return value;
+}
+function paint(paint, value) {
+    if (!_enable || paint == null || value == null || value.length == 0 || paint.length == 0)
+        return value;
+    var _loop_3 = function (i) {
+        var item = paint[i];
+        var key_3 = item.key;
+        var colors = item.colors;
+        if (key_3 == null || colors == null || colors.length == 0)
+            return "continue";
+        if (typeof (key_3) == "string") {
+            value = replace_all(value, key_3, Colors(colors, key_3));
+        }
+        else if (key_3 instanceof RegExp) {
+            value = value.replace(key_3, function (ar) {
+                return Colors(colors, ar);
+            });
+        }
+        else {
+            if (key_3.length == 0)
+                return { value: value };
+            if (typeof (key_3[0]) == "string") {
+                for (var idx = 0; idx < key_3.length; ++idx) {
+                    var k = key_3[idx];
+                    value = replace_all(value, k, Colors(colors, k));
+                }
             }
             else {
-                if (key_3.length == 0)
-                    return { value: value };
-                if (typeof (key_3[0]) == "string") {
-                    for (var idx = 0; idx < key_3.length; ++idx) {
-                        var k = key_3[idx];
-                        value = replace_all(value, k, Colors(colors, k));
-                    }
-                }
-                else {
-                    for (var idx = 0; idx < key_3.length; ++idx) {
-                        value = value.replace(key_3[idx], function (ar) {
-                            return Colors(colors, ar);
-                        });
-                    }
+                for (var idx = 0; idx < key_3.length; ++idx) {
+                    value = value.replace(key_3[idx], function (ar) {
+                        return Colors(colors, ar);
+                    });
                 }
             }
-        };
-        for (var i = 0; i < paint.length; ++i) {
-            var state_1 = _loop_3(i);
-            if (typeof state_1 === "object")
-                return state_1.value;
         }
-        return value;
+    };
+    for (var i = 0; i < paint.length; ++i) {
+        var state_1 = _loop_3(i);
+        if (typeof state_1 === "object")
+            return state_1.value;
     }
-    Colors.paint = paint;
-})(Colors = exports.Colors || (exports.Colors = {}));
+    return value;
+}
+exports.paint = paint;
 //# sourceMappingURL=colors.js.map
