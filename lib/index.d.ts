@@ -47,6 +47,7 @@ declare global {
         //theme
         verbose: string;
         info: string;
+        warning: string;
         debug: string;
         error: string;
 

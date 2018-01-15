@@ -229,6 +229,7 @@ function _color_web_safe_map_init(): void {
 const _default_theme: { [key: string]: string | string[] } = {
     verbose: "white",
     info: "green",
+    warning: "yellow",
     debug: "blue",
     error: "red",
     // custom
@@ -314,7 +315,7 @@ function _codes_init() {
     String.prototype.grey_bg = String.prototype.gray_bg;
 
     String.prototype.colors = function (color: string | string[]): string {
-        return Colors(color, this);
+        return colors(color, this);
     }
 
     String.prototype.paint = function (pt: { key: string | RegExp, colors: string | string[] }[]): string {
@@ -363,7 +364,7 @@ function _theme_init() {
                     let s = _theme[key];
                     if (s == null)
                         return this;
-                    return Colors(s, this);
+                    return colors(s, this);
                 }
                 return this;
             },
@@ -377,12 +378,12 @@ _color_web_safe_map_init();
 _codes_init();
 _theme_init();
 
-export function Colors(color: string | string[], value: string): string {
+export function colors(color: string | string[], value: string): string {
     if (_enable) {
         if (typeof (color) == "string") {
             let s: string | string[] = _theme[color]
             if (s != null)
-                return Colors(s, value);
+                return colors(s, value);
 
             var code = _get_code(color);
             if (code == null)
@@ -440,17 +441,17 @@ export function paint(paint: { key: string | string[] | RegExp | RegExp[], color
     for (let i = 0; i < paint.length; ++i) {
         let item = paint[i];
         let key = item.key;
-        let colors = item.colors;
+        let cs = item.colors;
 
-        if (key == null || colors == null || colors.length == 0)
+        if (key == null || cs == null || colors.length == 0)
             continue;
 
         if (typeof (key) == "string") {
-            value = replace_all(value, key, Colors(colors, key))
+            value = replace_all(value, key, colors(cs, key))
         }
         else if (key instanceof RegExp) {
             value = value.replace(key, (ar) => {
-                return Colors(colors, ar);
+                return colors(cs, ar);
             })
         }
         else {
@@ -460,14 +461,14 @@ export function paint(paint: { key: string | string[] | RegExp | RegExp[], color
                 //string[]
                 for (let idx = 0; idx < key.length; ++idx) {
                     let k = <string>key[idx];
-                    value = replace_all(value, k, Colors(colors, k));
+                    value = replace_all(value, k, colors(cs, k));
                 }
             }
             else {
                 //RegExp[]
                 for (let idx = 0; idx < key.length; ++idx) {
                     value = value.replace(key[idx], (ar) => {
-                        return Colors(colors, ar);
+                        return colors(cs, ar);
                     })
                 }
             }
