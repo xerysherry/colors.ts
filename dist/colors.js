@@ -106,15 +106,15 @@ function _get_web_safe_code(hexcode, map, list) {
         return "";
     }
     var c = "";
-    var m = 0x300;
+    var m = Number.MAX_VALUE;
     var r = parseInt(hexcode[0] + hexcode[1], 16);
     var g = parseInt(hexcode[2] + hexcode[3], 16);
     var b = parseInt(hexcode[4] + hexcode[5], 16);
     for (var i = 0; i < list.length; ++i) {
         var item = list[i];
-        var v = Math.abs(item.r - r) +
-            Math.abs(item.g - g) +
-            Math.abs(item.b - b);
+        var v = (item.r - r) * (item.r - r) +
+            (item.g - g) * (item.g - g) +
+            (item.b - b) * (item.b - b);
         if (v < m) {
             m = v;
             c = item.c;

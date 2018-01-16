@@ -143,15 +143,15 @@ function _get_web_safe_code(hexcode: string,
     }
 
     let c = "";
-    let m = 0x300;
+    let m = Number.MAX_VALUE;
     let r = parseInt(hexcode[0] + hexcode[1], 16);
     let g = parseInt(hexcode[2] + hexcode[3], 16);
     let b = parseInt(hexcode[4] + hexcode[5], 16);
     for (let i = 0; i < list.length; ++i) {
         let item = list[i];
-        let v = Math.abs(item.r - r) +
-            Math.abs(item.g - g) +
-            Math.abs(item.b - b);
+        let v = (item.r - r)*(item.r - r) +
+                (item.g - g)*(item.g - g) +
+                (item.b - b)*(item.b - b);
         if (v < m) {
             m = v;
             c = item.c;
