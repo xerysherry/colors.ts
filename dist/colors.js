@@ -27,22 +27,22 @@ var _codes_base = {
     bg_white: "\u001B[47m"
 };
 var _codes_advanced = {
-    lightblack: "\u001B[30;1m",
-    lightred: "\u001B[31;1m",
-    lightgreen: "\u001B[32;1m",
-    lightyellow: "\u001B[33;1m",
-    lightblue: "\u001B[34;1m",
-    lightmagenta: "\u001B[35;1m",
-    lightcyan: "\u001B[36;1m",
-    lightwhite: "\u001B[37;1m",
-    bg_lightblack: "\u001B[40;1m",
-    bg_lightred: "\u001B[41;1m",
-    bg_lightgreen: "\u001B[42;1m",
-    bg_lightyellow: "\u001B[43;1m",
-    bg_lightblue: "\u001B[44;1m",
-    bg_lightmagenta: "\u001B[45;1m",
-    bg_lightcyan: "\u001B[46;1m",
-    bg_lightwhite: "\u001B[47;1m"
+    brightblack: "\u001B[30;1m",
+    brightred: "\u001B[31;1m",
+    brightgreen: "\u001B[32;1m",
+    brightyellow: "\u001B[33;1m",
+    brightblue: "\u001B[34;1m",
+    brightmagenta: "\u001B[35;1m",
+    brightcyan: "\u001B[36;1m",
+    brightwhite: "\u001B[37;1m",
+    bg_brightblack: "\u001B[40;1m",
+    bg_brightred: "\u001B[41;1m",
+    bg_brightgreen: "\u001B[42;1m",
+    bg_brightyellow: "\u001B[43;1m",
+    bg_brightblue: "\u001B[44;1m",
+    bg_brightmagenta: "\u001B[45;1m",
+    bg_brightcyan: "\u001B[46;1m",
+    bg_brightwhite: "\u001B[47;1m"
 };
 var _reset_ctrl = _codes_base.reset;
 var _color_256bits = "\u001B[38;5;";
@@ -229,8 +229,12 @@ function _prev_line(n) {
 }
 function _column(n) { return "\u001B[" + n + "G"; }
 function _position(x, y) { return "\u001B[" + y + ";" + x + "H"; }
-function _save_position(slot) { return "\u001B[" + slot + "I"; }
-function _load_position(slot) { return "\u001B[" + slot + "J"; }
+var _save_position_code = "\u001B[s";
+var _load_position_code = "\u001B[u";
+var _clear_screen_code = "\u001B[2J";
+var _clear_line_code = "\u001B[K";
+var _hide_cursor_code = "\u001B[?25l";
+var _show_cursor_code = "\u001B[?25h";
 function _codes_init() {
     var _loop_1 = function (key_1) {
         var ctrl = _codes_base[key_1];
@@ -310,12 +314,34 @@ function _codes_init() {
     String.prototype.position = function (x, y) {
         return _position(x, y) + this;
     };
-    String.prototype.save_position = function (n) {
-        return _save_position(n) + this;
-    };
-    String.prototype.load_position = function (n) {
-        return _load_position(n) + this;
-    };
+    Object.defineProperty(String.prototype, "load_position", {
+        get: function () {
+            return _load_position_code + this;
+        },
+        enumerable: false,
+        configurable: false
+    });
+    Object.defineProperty(String.prototype, "save_position", {
+        get: function () {
+            return _save_position_code + this;
+        },
+        enumerable: false,
+        configurable: false
+    });
+    Object.defineProperty(String.prototype, "clear_screen", {
+        get: function () {
+            return _clear_screen_code + this;
+        },
+        enumerable: false,
+        configurable: false
+    });
+    Object.defineProperty(String.prototype, "clear_line", {
+        get: function () {
+            return _clear_line_code + this;
+        },
+        enumerable: false,
+        configurable: false
+    });
 }
 function _theme_init() {
     var _loop_2 = function (key_2) {
@@ -378,6 +404,19 @@ function theme(theme) {
         _theme = theme;
 }
 exports.theme = theme;
+function position(x, y) {
+    process.stdout.write(_position(x, y));
+}
+exports.position = position;
+function clear_screen() {
+    process.stdout.write(_clear_screen_code);
+}
+exports.clear_screen = clear_screen;
+function show_cursor(show) {
+    if (show === void 0) { show = true; }
+    process.stdout.write(show ? _show_cursor_code : _hide_cursor_code);
+}
+exports.show_cursor = show_cursor;
 function replace_all(value, search, replace) {
     if (search == null || search.length == 0)
         return value;

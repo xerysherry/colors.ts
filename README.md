@@ -138,13 +138,13 @@ document.body.appendChild(button);
 
 console.log(ts.paint([
     {key:["let", "new", "alert", "class"], colors:"red"},
-    {key:"this", colors:"lightgreen"},
+    {key:"this", colors:"brightgreen"},
     {key:"return", colors:"green"},
     {key:"document", colors:"green"},
     {key:new RegExp("string|number|function", "g"), colors:["#6600FF", "bold"]},
     {key:new RegExp("\\{|\\}", "g"), colors:"bold"},
     {key:new RegExp("\\(|\\)", "g"), colors:"bold"},
-    {key:[/"[^"]*"/g, /'[^']*'/g], colors:["lightyellow", "underline"]},
+    {key:[/"[^"]*"/g, /'[^']*'/g], colors:["brightyellow", "underline"]},
 ]))
 ```
 
@@ -166,6 +166,18 @@ Colors.theme(theme: { [key: string]: string | string[] }): void
 Colors.paint(paint: { key: string | string[] | RegExp | RegExp[], colors: string | string[] }[], value: string): string
 
 * paint
+
+Colors.position(x:number, y:number): void
+
+* set input position
+
+Colors.clear_screen(): void
+
+* clear screen
+
+Colors.show_cursor(): void
+
+* show/hide cursor
 
 String Extend
 
@@ -240,8 +252,12 @@ declare global {
         prev_line(n?:number):string;
         column(n:number):string;
         position(x:number, y:number):string;
-        save_position(slot:number):string;
-        load_position(slot:number):string;
+        
+        save_position:string;
+        load_position:string;
+
+        clear_screen:string;
+        clear_line:string;
     }
 }
 ```
@@ -408,13 +424,13 @@ document.body.appendChild(button);
 
 console.log(ts.paint([
     {key:["let", "new", "alert", "class"], colors:"red"},
-    {key:"this", colors:"lightgreen"},
+    {key:"this", colors:"brightgreen"},
     {key:"return", colors:"green"},
     {key:"document", colors:"green"},
     {key:new RegExp("string|number|function", "g"), colors:["#6600FF", "bold"]},
     {key:new RegExp("\\{|\\}", "g"), colors:"bold"},
     {key:new RegExp("\\(|\\)", "g"), colors:"bold"},
-    {key:[/"[^"]*"/g, /'[^']*'/g], colors:["lightyellow", "underline"]},
+    {key:[/"[^"]*"/g, /'[^']*'/g], colors:["brightyellow", "underline"]},
 ]))
 ```
 
@@ -436,6 +452,18 @@ Colors.theme(theme: { [key: string]: string | string[] }): void
 Colors.paint(paint: { key: string | string[] | RegExp | RegExp[], colors: string | string[] }[], value: string): string
 
 * 着色
+
+Colors.position(x:number, y:number): void
+
+* 设置光标位置
+
+Colors.clear_screen(): void
+
+* 清空屏幕
+
+Colors.show_cursor(): void
+
+* 显示/隐藏光标
 
 String扩展的属性与函数
 
@@ -510,8 +538,11 @@ declare global {
         prev_line(n?:number):string;
         column(n:number):string;
         position(x:number, y:number):string;
-        save_position(slot:number):string;
-        load_position(slot:number):string;
+        save_position:string;
+        load_position:string;
+
+        clear_screen:string;
+        clear_line:string;
     }
 }
 ```

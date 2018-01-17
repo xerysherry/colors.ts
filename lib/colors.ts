@@ -32,8 +32,6 @@ const _codes_base: { [key: string]: string } = {
     magenta: `\u001b[35m`,
     cyan: `\u001b[36m`,
     white: `\u001b[37m`,
-    //gray: `\u001b[90m`,
-    //grey: `\u001b[90m`,
 
     bg_black: `\u001b[40m`,
     bg_red: `\u001b[41m`,
@@ -45,23 +43,23 @@ const _codes_base: { [key: string]: string } = {
     bg_white: `\u001b[47m`,
 };
 const _codes_advanced: { [key: string]: string } = {
-    lightblack: `\u001b[30;1m`,
-    lightred: `\u001b[31;1m`,
-    lightgreen: `\u001b[32;1m`,
-    lightyellow: `\u001b[33;1m`,
-    lightblue: `\u001b[34;1m`,
-    lightmagenta: `\u001b[35;1m`,
-    lightcyan: `\u001b[36;1m`,
-    lightwhite: `\u001b[37;1m`,
+    brightblack: `\u001b[30;1m`,
+    brightred: `\u001b[31;1m`,
+    brightgreen: `\u001b[32;1m`,
+    brightyellow: `\u001b[33;1m`,
+    brightblue: `\u001b[34;1m`,
+    brightmagenta: `\u001b[35;1m`,
+    brightcyan: `\u001b[36;1m`,
+    brightwhite: `\u001b[37;1m`,
 
-    bg_lightblack: `\u001b[40;1m`,
-    bg_lightred: `\u001b[41;1m`,
-    bg_lightgreen: `\u001b[42;1m`,
-    bg_lightyellow: `\u001b[43;1m`,
-    bg_lightblue: `\u001b[44;1m`,
-    bg_lightmagenta: `\u001b[45;1m`,
-    bg_lightcyan: `\u001b[46;1m`,
-    bg_lightwhite: `\u001b[47;1m`,
+    bg_brightblack: `\u001b[40;1m`,
+    bg_brightred: `\u001b[41;1m`,
+    bg_brightgreen: `\u001b[42;1m`,
+    bg_brightyellow: `\u001b[43;1m`,
+    bg_brightblue: `\u001b[44;1m`,
+    bg_brightmagenta: `\u001b[45;1m`,
+    bg_brightcyan: `\u001b[46;1m`,
+    bg_brightwhite: `\u001b[47;1m`,
 }
 const _reset_ctrl: string = _codes_base.reset
 
@@ -260,8 +258,12 @@ function _next_line(n: number = 1): string { return `\u001b[${n}E`; }
 function _prev_line(n: number = 1): string { return `\u001b[${n}F`; }
 function _column(n: number): string { return `\u001b[${n}G`; }
 function _position(x: number, y: number): string { return `\u001b[${y};${x}H`; }
-function _save_position(slot: number): string { return `\u001b[${slot}I`; }
-function _load_position(slot: number): string { return `\u001b[${slot}J`; }
+let _save_position_code:string = `\u001b[s`;
+let _load_position_code:string = `\u001b[u`;
+let _clear_screen_code: string = `\u001b[2J`;
+let _clear_line_code: string = `\u001b[K`;
+let _hide_cursor_code: string = `\u001b[?25l`;
+let _show_cursor_code: string = `\u001b[?25h`;
 
 function _codes_init() {
     for (const key in _codes_base) {
@@ -347,12 +349,34 @@ function _codes_init() {
     String.prototype.position = function (x: number, y: number): string {
         return _position(x, y) + this;
     }
-    String.prototype.save_position = function (n: number): string {
-        return _save_position(n) + this;
-    }
-    String.prototype.load_position = function (n: number): string {
-        return _load_position(n) + this;
-    }
+    Object.defineProperty(String.prototype, "load_position", {
+        get: function (): string {
+            return _load_position_code + this;
+        },
+        enumerable: false,
+        configurable: false
+    })
+    Object.defineProperty(String.prototype, "save_position", {
+        get: function (): string {
+            return _save_position_code + this;
+        },
+        enumerable: false,
+        configurable: false
+    })
+    Object.defineProperty(String.prototype, "clear_screen", {
+        get: function (): string {
+            return _clear_screen_code + this;
+        },
+        enumerable: false,
+        configurable: false
+    })
+    Object.defineProperty(String.prototype, "clear_line", {
+        get: function (): string {
+            return _clear_line_code + this;
+        },
+        enumerable: false,
+        configurable: false
+    })
 }
 
 function _theme_init() {
@@ -412,6 +436,20 @@ export function theme(theme: { [key: string]: string | string[] } = _default_the
     else
         _theme = theme;
 }
+
+export function position(x:number, y:number)
+{
+    process.stdout.write(_position(x, y));
+}
+
+export function clear_screen() {
+    process.stdout.write(_clear_screen_code);
+}
+
+export function show_cursor(show:boolean = true) {
+    process.stdout.write(show ? _show_cursor_code : _hide_cursor_code);
+}
+
 
 function replace_all(value: string, search: string, replace: string): string {
     if (search == null || search.length == 0)

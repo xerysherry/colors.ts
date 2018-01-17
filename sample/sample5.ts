@@ -23,11 +23,11 @@ document.body.appendChild(button);
 
 console.log(ts.paint([
     {key:["let", "new", "alert", "class"], colors:"red"},
-    {key:"this", colors:"lightgreen"},
+    {key:"this", colors:"brightgreen"},
     {key:"return", colors:"green"},
     {key:"document", colors:"green"},
     {key:new RegExp("string|number|function", "g"), colors:["#6600FF", "bold"]},
     {key:new RegExp("\\{|\\}", "g"), colors:"bold"},
     {key:new RegExp("\\(|\\)", "g"), colors:"bold"},
-    {key:[/"[^"]*"/g, /'[^']*'/g], colors:["lightyellow", "underline"]},
+    {key:[/"[^"]*"/g, /'[^']*'/g], colors:["brightyellow", "underline"]},
 ]))

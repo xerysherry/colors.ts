@@ -84,8 +84,11 @@ declare global {
         prev_line(n?:number):string;
         column(n:number):string;
         position(x:number, y:number):string;
-        save_position(slot:number):string;
-        load_position(slot:number):string;
+        save_position:string;
+        load_position:string;
+
+        clear_screen:string;
+        clear_line:string;
     }
 }
 
@@ -95,5 +98,8 @@ declare namespace Colors
     export function enable(value?: boolean): void;
     export function theme(theme?: {[key:string]:string|string[]}): void;
     export function paint(paint:{key:string|string[]|RegExp|RegExp[], colors:string|string[]}[], value:string):string
+    export function position(x:number, y:number): void;
+    export function clear_screen(): void;
+    export function show_cursor(show?: boolean): void;
 }
 export = Colors;
