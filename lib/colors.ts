@@ -108,6 +108,8 @@ function _get_gray_bg_code(level: number): string {
 }
 // get 256 colors, idx at [0, 255]
 function _get_256bits_color_code(idx: number): string {
+    if(_support < Support.ANSI256)
+        return null;
     if (idx < 0)
         idx = 0;
     else if (idx > 255)
@@ -116,6 +118,8 @@ function _get_256bits_color_code(idx: number): string {
 }
 // get bg 256 colors, idx at [0, 255]
 function _get_256bits_color_bg_code(idx: number): string {
+    if(_support < Support.ANSI256)
+        return null;
     if (idx < 0)
         idx = 0;
     else if (idx > 255)
@@ -146,9 +150,13 @@ function _get_color_by_hex(hexcode: string, bg: boolean): string
         return bg ? _get_truecolor_bg(r, g, b) : _get_truecolor(r, g, b);
     }
     if(_support < Support.ANSI256)
-        return "";
-    return _get_web_safe_code_by_hex(hexcode, 
-        bg ? _color_bg_web_safe_map : _color_web_safe_map);
+        return null;
+    if(bg)
+        return _get_web_safe_code_by_hex(hexcode, 
+                _color_bg_web_safe_map, _color_bg_web_safe_list);
+    else
+        return _get_web_safe_code_by_hex(hexcode, 
+                _color_web_safe_map, _color_web_safe_list);
 }
 
 function _get_color_by_rgb(r:number, g:number, b:number, bg: boolean): string
@@ -156,13 +164,18 @@ function _get_color_by_rgb(r:number, g:number, b:number, bg: boolean): string
     if(_support == Support.ANSI24bits)
         return bg ? _get_truecolor_bg(r, g, b) : _get_truecolor(r, g, b);
     if(_support < Support.ANSI256)
-        return "";
-    return _get_web_safe_code_by_rgb(r, g, b,
-        bg ? _color_bg_web_safe_map : _color_web_safe_map);
+        return null;
+    if(bg)
+        return _get_web_safe_code_by_rgb(r, g, b, 
+                _color_bg_web_safe_map, _color_bg_web_safe_list);
+    else
+        return _get_web_safe_code_by_rgb(r, g, b, 
+                _color_web_safe_map, _color_web_safe_list);
 }
 
 function _get_web_safe_code_by_hex(hex:string, 
-                                map:{ [key: string]: string })
+                                map:{ [key: string]: string },
+                                list:{r:number, g:number, b:number, c:string}[])
 {
     let c = map[hex];
     if(c != null)
@@ -170,41 +183,40 @@ function _get_web_safe_code_by_hex(hex:string,
     let r = parseInt(hex[0]+hex[1], 16);
     let g = parseInt(hex[2]+hex[3], 16);
     let b = parseInt(hex[4]+hex[5], 16);
-    return _get_web_safe_code_search(r, g, b, map, hex);
+    c = _get_web_safe_code_search(r, g, b, list);
+    map[hex] = c;
+    return c;
 }
 
 function _get_web_safe_code_by_rgb(r:number, g:number, b:number, 
-                                map:{ [key: string]: string })
+                                map:{ [key: string]: string },
+                                list:{r:number, g:number, b:number, c:string}[])
 {
     let hex = _n2h(r) + _n2h(g) + _n2h(b);
     let c = map[hex];
     if(c != null)
         return c;
-    return _get_web_safe_code_search(r, g, b, map);
+    c = _get_web_safe_code_search(r, g, b, list);
+    map[hex] = c;
+    return c;
 }
 
 function _get_web_safe_code_search(r:number, g:number, b:number, 
-                            map:{ [key: string]: string }, hex?:string): string
+    list:{r:number, g:number, b:number, c:string}[]): string
 {
     let m = Number.MAX_VALUE;
-    let c = "";
-    for(const key in map)
-    {
-        let kr = parseInt(key[0]+key[1], 16);
-        let kg = parseInt(key[2]+key[3], 16);
-        let kb = parseInt(key[4]+key[5], 16);
-        let v = (kr - r)*(kr - r) +
-                (kg - g)*(kg - g) +
-                (kb - b)*(kb - b);
-        if (v < m) {
+    let c = null;
+
+    list.forEach(item=>{
+        let v = (item.r - r)*(item.r - r) +
+                (item.g - g)*(item.g - g) +
+                (item.b - b)*(item.b - b);
+        if(v < m)
+        {
             m = v;
-            c = map[key];
+            c = item.c;
         }
-    }
-    if(hex != null)
-        map[hex] = c;
-    else
-        map[_n2h(r) + _n2h(g) + _n2h(b)] = c;
+    });
     return c;
 }
 
@@ -220,7 +232,7 @@ function _get_truecolor_bg(r: number, g: number, b:number): string
 
 function _get_code(color: string) {
     if (color.length == 0 || _support < Support.BASE)
-        return "";
+        return null;
     let code = _codes_base[color];
     if (code != null)
         return code;
@@ -237,12 +249,17 @@ function _get_code(color: string) {
 }
 
 let _color_web_safe_map: { [key: string]: string } = null;
+let _color_web_safe_list: {r:number, g:number, b:number, c:string}[] = null;
 let _color_bg_web_safe_map: { [key: string]: string } = null;
+let _color_bg_web_safe_list: {r:number, g:number, b:number, c:string}[] = null;
 
 function _color_web_safe_map_init(): void {
     let hexs = ["0", "33", "66", "99", "cc", "ff"];
+    let hexns = [0, 0x33, 0x66, 0x99, 0xcc, 0xff];
     _color_web_safe_map = {};
+    _color_web_safe_list = [];
     _color_bg_web_safe_map = {};
+    _color_bg_web_safe_list = [];
 
     let startpos = 16;
     let key: [number, number, number] = [0, 0, 0];
@@ -257,8 +274,20 @@ function _color_web_safe_map_init(): void {
         }
         let pos = startpos + i;
         let hex = hexs[key[2]] + hexs[key[1]] + hexs[key[0]];
-        _color_web_safe_map[hex] = _color_256bits + pos + _color_256bits_endl;
-        _color_bg_web_safe_map[hex] = _color_256bits_bg + pos + _color_256bits_bg_endl;
+        let c = _color_256bits + pos + _color_256bits_endl;
+        _color_web_safe_map[hex] = c;
+        _color_web_safe_list.push({
+            r:hexns[key[2]], 
+            g:hexns[key[1]], 
+            b:hexns[key[0]], 
+            c: c});
+        c = _color_256bits_bg + pos + _color_256bits_bg_endl;
+        _color_bg_web_safe_map[hex] = c;
+        _color_bg_web_safe_list.push({
+            r:hexns[key[2]], 
+            g:hexns[key[1]], 
+            b:hexns[key[0]], 
+            c: c})
     }
 }
 
@@ -431,8 +460,8 @@ function _codes_init() {
     }
     String.prototype.grey_bg = String.prototype.gray_bg;
 
-    String.prototype.colors = function (color: string | string[]): string {
-        return colors(color, this);
+    String.prototype.colors = function (color: string | string[], noreset?: boolean): string {
+        return colors(color, this, noreset);
     }
 
     String.prototype.rgb = function (r:number, g:number, b:number): string {
@@ -525,7 +554,7 @@ _color_web_safe_map_init();
 _codes_init();
 _theme_init();
 
-export function colors(color: string | string[], value: string): string {
+export function colors(color: string | string[], value: string, noreset?: boolean): string {
     if (_enable) {
         if(_support < Support.BASE)
             return value;
@@ -535,8 +564,10 @@ export function colors(color: string | string[], value: string): string {
                 return colors(s, value);
 
             var code = _get_code(color);
-            if (code == null)
+            if(code == null)
                 return value;
+            if(noreset)
+                return code + value;
             return code + value + _reset_ctrl;
         }
         else {
@@ -546,6 +577,8 @@ export function colors(color: string | string[], value: string): string {
                 if (code != null)
                     result = code + result;
             }
+            if(noreset)
+                return result;
             return result + _reset_ctrl;
         }
     }

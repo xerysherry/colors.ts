@@ -81,6 +81,8 @@ function _get_gray_bg_code(level) {
     return '';
 }
 function _get_256bits_color_code(idx) {
+    if (_support < Support.ANSI256)
+        return null;
     if (idx < 0)
         idx = 0;
     else if (idx > 255)
@@ -88,6 +90,8 @@ function _get_256bits_color_code(idx) {
     return _color_256bits + idx + _color_256bits_endl;
 }
 function _get_256bits_color_bg_code(idx) {
+    if (_support < Support.ANSI256)
+        return null;
     if (idx < 0)
         idx = 0;
     else if (idx > 255)
@@ -112,51 +116,54 @@ function _get_color_by_hex(hexcode, bg) {
         return bg ? _get_truecolor_bg(r, g, b) : _get_truecolor(r, g, b);
     }
     if (_support < Support.ANSI256)
-        return "";
-    return _get_web_safe_code_by_hex(hexcode, bg ? _color_bg_web_safe_map : _color_web_safe_map);
+        return null;
+    if (bg)
+        return _get_web_safe_code_by_hex(hexcode, _color_bg_web_safe_map, _color_bg_web_safe_list);
+    else
+        return _get_web_safe_code_by_hex(hexcode, _color_web_safe_map, _color_web_safe_list);
 }
 function _get_color_by_rgb(r, g, b, bg) {
     if (_support == Support.ANSI24bits)
         return bg ? _get_truecolor_bg(r, g, b) : _get_truecolor(r, g, b);
     if (_support < Support.ANSI256)
-        return "";
-    return _get_web_safe_code_by_rgb(r, g, b, bg ? _color_bg_web_safe_map : _color_web_safe_map);
+        return null;
+    if (bg)
+        return _get_web_safe_code_by_rgb(r, g, b, _color_bg_web_safe_map, _color_bg_web_safe_list);
+    else
+        return _get_web_safe_code_by_rgb(r, g, b, _color_web_safe_map, _color_web_safe_list);
 }
-function _get_web_safe_code_by_hex(hex, map) {
+function _get_web_safe_code_by_hex(hex, map, list) {
     var c = map[hex];
     if (c != null)
         return c;
     var r = parseInt(hex[0] + hex[1], 16);
     var g = parseInt(hex[2] + hex[3], 16);
     var b = parseInt(hex[4] + hex[5], 16);
-    return _get_web_safe_code_search(r, g, b, map, hex);
+    c = _get_web_safe_code_search(r, g, b, list);
+    map[hex] = c;
+    return c;
 }
-function _get_web_safe_code_by_rgb(r, g, b, map) {
+function _get_web_safe_code_by_rgb(r, g, b, map, list) {
     var hex = _n2h(r) + _n2h(g) + _n2h(b);
     var c = map[hex];
     if (c != null)
         return c;
-    return _get_web_safe_code_search(r, g, b, map);
+    c = _get_web_safe_code_search(r, g, b, list);
+    map[hex] = c;
+    return c;
 }
-function _get_web_safe_code_search(r, g, b, map, hex) {
+function _get_web_safe_code_search(r, g, b, list) {
     var m = Number.MAX_VALUE;
-    var c = "";
-    for (var key in map) {
-        var kr = parseInt(key[0] + key[1], 16);
-        var kg = parseInt(key[2] + key[3], 16);
-        var kb = parseInt(key[4] + key[5], 16);
-        var v = (kr - r) * (kr - r) +
-            (kg - g) * (kg - g) +
-            (kb - b) * (kb - b);
+    var c = null;
+    list.forEach(function (item) {
+        var v = (item.r - r) * (item.r - r) +
+            (item.g - g) * (item.g - g) +
+            (item.b - b) * (item.b - b);
         if (v < m) {
             m = v;
-            c = map[key];
+            c = item.c;
         }
-    }
-    if (hex != null)
-        map[hex] = c;
-    else
-        map[_n2h(r) + _n2h(g) + _n2h(b)] = c;
+    });
     return c;
 }
 function _get_truecolor(r, g, b) {
@@ -167,7 +174,7 @@ function _get_truecolor_bg(r, g, b) {
 }
 function _get_code(color) {
     if (color.length == 0 || _support < Support.BASE)
-        return "";
+        return null;
     var code = _codes_base[color];
     if (code != null)
         return code;
@@ -182,11 +189,16 @@ function _get_code(color) {
     return code;
 }
 var _color_web_safe_map = null;
+var _color_web_safe_list = null;
 var _color_bg_web_safe_map = null;
+var _color_bg_web_safe_list = null;
 function _color_web_safe_map_init() {
     var hexs = ["0", "33", "66", "99", "cc", "ff"];
+    var hexns = [0, 0x33, 0x66, 0x99, 0xcc, 0xff];
     _color_web_safe_map = {};
+    _color_web_safe_list = [];
     _color_bg_web_safe_map = {};
+    _color_bg_web_safe_list = [];
     var startpos = 16;
     var key = [0, 0, 0];
     for (var i = 0; i < 216; ++i, ++key[0]) {
@@ -200,8 +212,22 @@ function _color_web_safe_map_init() {
         }
         var pos = startpos + i;
         var hex = hexs[key[2]] + hexs[key[1]] + hexs[key[0]];
-        _color_web_safe_map[hex] = _color_256bits + pos + _color_256bits_endl;
-        _color_bg_web_safe_map[hex] = _color_256bits_bg + pos + _color_256bits_bg_endl;
+        var c = _color_256bits + pos + _color_256bits_endl;
+        _color_web_safe_map[hex] = c;
+        _color_web_safe_list.push({
+            r: hexns[key[2]],
+            g: hexns[key[1]],
+            b: hexns[key[0]],
+            c: c
+        });
+        c = _color_256bits_bg + pos + _color_256bits_bg_endl;
+        _color_bg_web_safe_map[hex] = c;
+        _color_bg_web_safe_list.push({
+            r: hexns[key[2]],
+            g: hexns[key[1]],
+            b: hexns[key[0]],
+            c: c
+        });
     }
 }
 var _default_theme = {
@@ -379,8 +405,8 @@ function _codes_init() {
             return _get_gray_bg_code(level) + this + _reset_ctrl;
     };
     String.prototype.grey_bg = String.prototype.gray_bg;
-    String.prototype.colors = function (color) {
-        return colors(color, this);
+    String.prototype.colors = function (color, noreset) {
+        return colors(color, this, noreset);
     };
     String.prototype.rgb = function (r, g, b) {
         return _get_color_by_rgb(r, g, b, false);
@@ -468,7 +494,7 @@ function _theme_init() {
 _color_web_safe_map_init();
 _codes_init();
 _theme_init();
-function colors(color, value) {
+function colors(color, value, noreset) {
     if (_enable) {
         if (_support < Support.BASE)
             return value;
@@ -479,6 +505,8 @@ function colors(color, value) {
             var code = _get_code(color);
             if (code == null)
                 return value;
+            if (noreset)
+                return code + value;
             return code + value + _reset_ctrl;
         }
         else {
@@ -488,6 +516,8 @@ function colors(color, value) {
                 if (code != null)
                     result = code + result;
             }
+            if (noreset)
+                return result;
             return result + _reset_ctrl;
         }
     }

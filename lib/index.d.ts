@@ -71,7 +71,7 @@ declare global {
         rgb(r:number, g:number, b:number): string;
         rgb_bg(r:number, g:number, b:number): string;
 
-        colors(color:string|string[]):string;
+        colors(color:string|string[], noreset?:boolean):string;
         paint(  paint:{
                     key:string|string[]|RegExp|RegExp[], 
                     colors:string|string[]
@@ -102,7 +102,7 @@ declare namespace Colors
         ANSI256 = 2, 
         ANSI24bits = 3,
     }
-    export function colors(color: string|string[], value: string):string;
+    export function colors(color: string|string[], value: string, noreset?: boolean):string;
     export function enable(value?: boolean): void;
     export function support(support?: Support): Support
     export function theme(theme?: {[key:string]:string|string[]}): void;

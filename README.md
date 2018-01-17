@@ -151,7 +151,7 @@ console.log(ts.paint([
 API
 ---
 
-Colors.colors(color: string | string[], value: string): string
+Colors.colors(color: string | string[], value: string, noreset?: boolean): string
 
 * return colorful value
 
@@ -241,7 +241,7 @@ declare global {
         rgb(r:number, g:number, b:number): string;
         rgb_bg(r:number, g:number, b:number): string;
 
-        colors(color:string|string[]):string;
+        colors(color:string|string[], noreset?: boolean):string;
         paint(  paint:{
                     key:string|string[]|RegExp|RegExp[], 
                     colors:string|string[]
@@ -441,7 +441,7 @@ console.log(ts.paint([
 API
 ---
 
-Colors.colors(color: string | string[], value: string): string
+Colors.colors(color: string | string[], value: string, noreset?: boolean): string
 
 * 返回颜色化的value
 
@@ -533,7 +533,7 @@ declare global {
         rgb(r:number, g:number, b:number): string;
         rgb_bg(r:number, g:number, b:number): string;
 
-        colors(color:string|string[]):string;
+        colors(color:string|string[], noreset?: boolean):string;
         paint(  paint:{
                     key:string|string[]|RegExp|RegExp[], 
                     colors:string|string[]
