@@ -1,6 +1,8 @@
 Colors For Typescript
 ================================
 
+![npm](https://nodei.co/npm/colors.ts.png)
+
 How to get?
 ---------
 
