@@ -341,14 +341,16 @@ function _check_support(): Support {
         argv.indexOf("nocolors")>=0)
         return Support.DISABLE;
     if(argv.indexOf("fullcolor")>=0 ||
-        argv.indexOf("fullcolor")>=0 ||
+        argv.indexOf("fullcolors")>=0 ||
         argv.indexOf("truecolor")>=0 ||
+        argv.indexOf("truecolors")>=0 ||
         argv.indexOf("color24bits")>=0)
         return Support.ANSI24bits;
     if(argv.indexOf("websafe")>=0 || 
         argv.indexOf("color256")>=0)
         return Support.ANSI256;
-    if(argv.indexOf("colorbase")>=0)
+    if(argv.indexOf("colorbase")>=0 ||
+        argv.indexOf("basecolors")>=0)
         return Support.ANSI256;
 
     if (process.platform === 'win32') {
