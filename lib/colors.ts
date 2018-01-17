@@ -351,7 +351,7 @@ function _check_support(): Support {
         return Support.ANSI256;
     if(argv.indexOf("colorbase")>=0 ||
         argv.indexOf("basecolors")>=0)
-        return Support.ANSI256;
+        return Support.BASE;
 
     if (process.platform === 'win32') {
 		// Node.js 7.5.0 is the first version of Node.js to include a patch to

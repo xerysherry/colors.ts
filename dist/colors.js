@@ -311,7 +311,7 @@ function _check_support() {
         return Support.ANSI256;
     if (argv.indexOf("colorbase") >= 0 ||
         argv.indexOf("basecolors") >= 0)
-        return Support.ANSI256;
+        return Support.BASE;
     if (process.platform === 'win32') {
         var osRelease = os.release().split('.');
         if (Number(process.versions.node.split('.')[0]) >= 8 &&
