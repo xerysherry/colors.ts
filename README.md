@@ -179,6 +179,10 @@ Colors.show_cursor(): void
 
 * show/hide cursor
 
+Colors.support(support?: Colors.Support): Support
+
+* set support level, {DISABLE, BASE, ANSI256, ANSI24bits}
+
 String Extend
 
 ```TypeScript 
@@ -201,8 +205,6 @@ declare global {
         magenta: string;
         cyan: string;
         white: string;
-        //gray: string;
-        //grey: string;
 
         bg_black: string;
         bg_red: string;
@@ -236,6 +238,8 @@ declare global {
         grey(level:number):string;
         gray_bg(level:number):string;
         grey_bg(level:number):string;
+        rgb(r:number, g:number, b:number): string;
+        rgb_bg(r:number, g:number, b:number): string;
 
         colors(color:string|string[]):string;
         paint(  paint:{
@@ -467,6 +471,10 @@ Colors.show_cursor(): void
 
 String扩展的属性与函数
 
+Colors.support(support?: Colors.Support): Support
+
+* 支持颜色级别, {DISABLE, BASE, ANSI256, ANSI24bits}
+
 ```TypeScript 
 declare global {
     interface String {
@@ -522,6 +530,8 @@ declare global {
         grey(level:number):string;
         gray_bg(level:number):string;
         grey_bg(level:number):string;
+        rgb(r:number, g:number, b:number): string;
+        rgb_bg(r:number, g:number, b:number): string;
 
         colors(color:string|string[]):string;
         paint(  paint:{

@@ -12,6 +12,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+import os = require("os");
 
 const _codes_base: { [key: string]: string } = {
     reset: `\u001b[0m`,
@@ -79,6 +80,8 @@ const _gray_color_startpos = 232
 // 26级灰度，0为黑色，25为白色
 function _get_gray_code(level: number): string {
     if (_enable) {
+        if(_support < Support.ANSI256)
+            return "\u001b[90m";;
         if (level <= 0)
             //黑
             return _color_256bits_black;
@@ -91,6 +94,8 @@ function _get_gray_code(level: number): string {
 }
 function _get_gray_bg_code(level: number): string {
     if (_enable) {
+        if(_support < Support.ANSI256)
+            return _color_256bits_bg + 245 + _color_256bits_bg_endl;
         if (level <= 0)
             //黑
             return _color_256bits_bg_black;
@@ -123,44 +128,98 @@ const _9_ascii = 0x39;
 const _a_ascii = 0x61;
 const _f_ascii = 0x66;
 
-function _get_web_safe_code(hexcode: string,
-    map: { [key: string]: string },
-    list: { r: number, g: number, b: number, c: string }[]) {
-    while (hexcode.length < 6)
-        hexcode = '0' + hexcode;
+function _n2h(n:number):string
+{
+    let hex = n.toString(16);
+    if(n < 0x10)
+        hex = "0" + hex;
+    return hex;
+}
 
-    let code = map[hexcode];
-    if (code != null)
-        return code;
-    for (let i = 0; i < hexcode.length; ++i) {
-        let c = hexcode.charCodeAt(i)
-        if ((_0_ascii <= c && c <= _9_ascii) ||
-            (_a_ascii <= c && c <= _f_ascii))
-            continue;
-        return "";
+function _get_color_by_hex(hexcode: string, bg: boolean): string
+{
+    if(_support == Support.ANSI24bits)
+    {
+        let r = parseInt(hexcode[0]+hexcode[1], 16);
+        let g = parseInt(hexcode[2]+hexcode[3], 16);
+        let b = parseInt(hexcode[4]+hexcode[5], 16);
+        return bg ? _get_truecolor_bg(r, g, b) : _get_truecolor(r, g, b);
     }
+    if(_support < Support.ANSI256)
+        return "";
+    return _get_web_safe_code_by_hex(hexcode, 
+        bg ? _color_bg_web_safe_map : _color_web_safe_map);
+}
 
-    let c = "";
+function _get_color_by_rgb(r:number, g:number, b:number, bg: boolean): string
+{
+    if(_support == Support.ANSI24bits)
+        return bg ? _get_truecolor_bg(r, g, b) : _get_truecolor(r, g, b);
+    if(_support < Support.ANSI256)
+        return "";
+    return _get_web_safe_code_by_rgb(r, g, b,
+        bg ? _color_bg_web_safe_map : _color_web_safe_map);
+}
+
+function _get_web_safe_code_by_hex(hex:string, 
+                                map:{ [key: string]: string })
+{
+    let c = map[hex];
+    if(c != null)
+        return c;
+    let r = parseInt(hex[0]+hex[1], 16);
+    let g = parseInt(hex[2]+hex[3], 16);
+    let b = parseInt(hex[4]+hex[5], 16);
+    return _get_web_safe_code_search(r, g, b, map, hex);
+}
+
+function _get_web_safe_code_by_rgb(r:number, g:number, b:number, 
+                                map:{ [key: string]: string })
+{
+    let hex = _n2h(r) + _n2h(g) + _n2h(b);
+    let c = map[hex];
+    if(c != null)
+        return c;
+    return _get_web_safe_code_search(r, g, b, map);
+}
+
+function _get_web_safe_code_search(r:number, g:number, b:number, 
+                            map:{ [key: string]: string }, hex?:string): string
+{
     let m = Number.MAX_VALUE;
-    let r = parseInt(hexcode[0] + hexcode[1], 16);
-    let g = parseInt(hexcode[2] + hexcode[3], 16);
-    let b = parseInt(hexcode[4] + hexcode[5], 16);
-    for (let i = 0; i < list.length; ++i) {
-        let item = list[i];
-        let v = (item.r - r)*(item.r - r) +
-                (item.g - g)*(item.g - g) +
-                (item.b - b)*(item.b - b);
+    let c = "";
+    for(const key in map)
+    {
+        let kr = parseInt(key[0]+key[1], 16);
+        let kg = parseInt(key[2]+key[3], 16);
+        let kb = parseInt(key[4]+key[5], 16);
+        let v = (kr - r)*(kr - r) +
+                (kg - g)*(kg - g) +
+                (kb - b)*(kb - b);
         if (v < m) {
             m = v;
-            c = item.c;
+            c = map[key];
         }
     }
-    map[hexcode] = c;
+    if(hex != null)
+        map[hex] = c;
+    else
+        map[_n2h(r) + _n2h(g) + _n2h(b)] = c;
     return c;
 }
 
+function _get_truecolor(r: number, g: number, b:number): string
+{
+    return `\u001b[38;2;${r};${g};${b};m`;
+}
+
+function _get_truecolor_bg(r: number, g: number, b:number): string
+{
+    return `\u001b[48;2;${r};${g};${b};m`;
+}
+
 function _get_code(color: string) {
-    if (color.length == 0)
+    if (color.length == 0 || _support < Support.BASE)
         return "";
     let code = _codes_base[color];
     if (code != null)
@@ -171,27 +230,19 @@ function _get_code(color: string) {
 
     color = color.toLowerCase();
     if (color.charAt(0) == "#")
-        return _get_web_safe_code(color.slice(1),
-            _color_web_safe_map, _color_web_safe_list);
+        return _get_color_by_hex(color.slice(1), false);
     else if (color.charAt(0) == 'b' && color.charAt(1) == "#")
-        return _get_web_safe_code(color.slice(2),
-            _color_bg_web_safe_map, _color_bg_web_safe_list);
+        return _get_color_by_hex(color.slice(2), true);
     return code;
 }
 
 let _color_web_safe_map: { [key: string]: string } = null;
 let _color_bg_web_safe_map: { [key: string]: string } = null;
-let _color_web_safe_list: { r: number, g: number, b: number, c: string }[] = null;
-let _color_bg_web_safe_list: { r: number, g: number, b: number, c: string }[] = null;
 
 function _color_web_safe_map_init(): void {
-    let hexs = ['00', '33', '66', '99', 'cc', 'ff'];
-    let step = 51;
-
+    let hexs = ["0", "33", "66", "99", "cc", "ff"];
     _color_web_safe_map = {};
     _color_bg_web_safe_map = {};
-    _color_web_safe_list = [];
-    _color_bg_web_safe_list = [];
 
     let startpos = 16;
     let key: [number, number, number] = [0, 0, 0];
@@ -205,22 +256,9 @@ function _color_web_safe_map_init(): void {
             }
         }
         let pos = startpos + i;
-        _color_web_safe_map[hexs[key[2]] + hexs[key[1]] + hexs[key[0]]] =
-            _color_256bits + pos + _color_256bits_endl;
-        _color_web_safe_list.push({
-            r: key[2] * step,
-            g: key[1] * step,
-            b: key[0] * step,
-            c: _color_256bits + pos + _color_256bits_endl
-        })
-        _color_bg_web_safe_map[hexs[key[2]] + hexs[key[1]] + hexs[key[0]]] =
-            _color_256bits_bg + pos + _color_256bits_bg_endl;
-        _color_bg_web_safe_list.push({
-            r: key[2] * step,
-            g: key[1] * step,
-            b: key[0] * step,
-            c: _color_256bits_bg + pos + _color_256bits_bg_endl
-        })
+        let hex = hexs[key[2]] + hexs[key[1]] + hexs[key[0]];
+        _color_web_safe_map[hex] = _color_256bits + pos + _color_256bits_endl;
+        _color_bg_web_safe_map[hex] = _color_256bits_bg + pos + _color_256bits_bg_endl;
     }
 }
 
@@ -242,6 +280,8 @@ const _default_theme: { [key: string]: string | string[] } = {
     custom8: "white",
     custom9: "white",
 }
+export enum Support {DISABLE = 0, BASE = 1, ANSI256 = 2, ANSI24bits = 3};
+let _support: Support = Support.DISABLE;
 let _enable: boolean = true;
 let _theme: { [key: string]: string | string[] } = _default_theme
 
@@ -265,7 +305,80 @@ let _clear_line_code: string = `\u001b[K`;
 let _hide_cursor_code: string = `\u001b[?25l`;
 let _show_cursor_code: string = `\u001b[?25h`;
 
+function _check_support(): Support {
+    let env = process.env;
+    let argv = process.argv;
+    if(argv.indexOf("nocolor")>=0 || 
+        argv.indexOf("nocolors")>=0)
+        return Support.DISABLE;
+    if(argv.indexOf("fullcolor")>=0 ||
+        argv.indexOf("fullcolor")>=0 ||
+        argv.indexOf("truecolor")>=0 ||
+        argv.indexOf("color24bits")>=0)
+        return Support.ANSI24bits;
+    if(argv.indexOf("websafe")>=0 || 
+        argv.indexOf("color256")>=0)
+        return Support.ANSI256;
+    if(argv.indexOf("colorbase")>=0)
+        return Support.ANSI256;
+
+    if (process.platform === 'win32') {
+		// Node.js 7.5.0 is the first version of Node.js to include a patch to
+		// libuv that enables 256 color output on Windows. Anything earlier and it
+		// won't work. However, here we target Node.js 8 at minimum as it is an LTS
+		// release, and Node.js 7 is not. Windows 10 build 10586 is the first Windows
+		// release that supports 256 colors.
+		const osRelease = os.release().split('.');
+		if (
+			Number(process.versions.node.split('.')[0]) >= 8 &&
+			Number(osRelease[0]) >= 10 &&
+			Number(osRelease[2]) >= 10586
+		) {
+			return Support.ANSI256;
+		}
+
+		return Support.BASE;
+    }
+    if ('CI' in env) {
+		if (['TRAVIS', 'CIRCLECI', 'APPVEYOR', 'GITLAB_CI'].some(sign => sign in env) || env.CI_NAME === 'codeship') {
+			return Support.BASE;
+		}
+		return Support.DISABLE;
+	}
+	if ('TEAMCITY_VERSION' in env) {
+		return /^(9\.(0*[1-9]\d*)\.|\d{2,}\.)/.test(env.TEAMCITY_VERSION) ? 1 : 0;
+	}
+	if ('TERM_PROGRAM' in env) {
+		const version = parseInt((env.TERM_PROGRAM_VERSION || '').split('.')[0], 10);
+
+		switch (env.TERM_PROGRAM) {
+			case 'iTerm.app':
+				return version >= 3 ? 3 : 2;
+			case 'Hyper':
+				return Support.ANSI24bits;
+			case 'Apple_Terminal':
+				return Support.ANSI256;
+			// No default
+		}
+	}
+	if (/-256(color)?$/i.test(env.TERM)) {
+		return Support.ANSI256;
+	}
+	if (/^screen|^xterm|^vt100|^rxvt|color|ansi|cygwin|linux/i.test(env.TERM)) {
+		return Support.ANSI256;
+	}
+	if ('COLORTERM' in env) {
+		return Support.BASE;
+	}
+	if (env.TERM === 'dumb') {
+		return Support.BASE;
+	}
+	return Support.DISABLE;
+}
+
 function _codes_init() {
+    _support = _check_support();
+
     for (const key in _codes_base) {
         let ctrl = _codes_base[key]
         if (ctrl == null)
@@ -273,6 +386,8 @@ function _codes_init() {
         Object.defineProperty(String.prototype, key, {
             get: function (): string {
                 if (_enable) {
+                    if(_support < Support.BASE)
+                        return this;
                     if (_check_reset_end(<string>this))
                         return ctrl + this;
                     else
@@ -318,6 +433,14 @@ function _codes_init() {
 
     String.prototype.colors = function (color: string | string[]): string {
         return colors(color, this);
+    }
+
+    String.prototype.rgb = function (r:number, g:number, b:number): string {
+        return _get_color_by_rgb(r, g, b, false);
+    }
+
+    String.prototype.rgb = function (r:number, g:number, b:number): string {
+        return _get_color_by_rgb(r, g, b, true);
     }
 
     String.prototype.paint = function (pt: { key: string | RegExp, colors: string | string[] }[]): string {
@@ -404,6 +527,8 @@ _theme_init();
 
 export function colors(color: string | string[], value: string): string {
     if (_enable) {
+        if(_support < Support.BASE)
+            return value;
         if (typeof (color) == "string") {
             let s: string | string[] = _theme[color]
             if (s != null)
@@ -430,6 +555,14 @@ export function colors(color: string | string[], value: string): string {
 export function enable(value: boolean = true) {
     _enable = value;
 }
+
+export function support(support?: Support): Support
+{
+    if(support != null)
+        _support = support;
+    return _support;
+}
+
 export function theme(theme: { [key: string]: string | string[] } = _default_theme) {
     if (theme == null)
         _theme = _default_theme;

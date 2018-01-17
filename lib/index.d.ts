@@ -68,6 +68,8 @@ declare global {
         grey(level:number):string;
         gray_bg(level:number):string;
         grey_bg(level:number):string;
+        rgb(r:number, g:number, b:number): string;
+        rgb_bg(r:number, g:number, b:number): string;
 
         colors(color:string|string[]):string;
         paint(  paint:{
@@ -94,8 +96,15 @@ declare global {
 
 declare namespace Colors
 {
+    export enum Support {
+        DISABLE = 0, 
+        BASE = 1,
+        ANSI256 = 2, 
+        ANSI24bits = 3,
+    }
     export function colors(color: string|string[], value: string):string;
     export function enable(value?: boolean): void;
+    export function support(support?: Support): Support
     export function theme(theme?: {[key:string]:string|string[]}): void;
     export function paint(paint:{key:string|string[]|RegExp|RegExp[], colors:string|string[]}[], value:string):string
     export function position(x:number, y:number): void;

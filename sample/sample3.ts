@@ -1,5 +1,6 @@
-require('../lib/colors')
+import Colors = require('../lib/colors')
 
+Colors.support(Colors.Support.ANSI256);
 // gray
 console.log("---gray level---")
 console.log("0:black                     >>>Gray Level>>>                         25:while")
