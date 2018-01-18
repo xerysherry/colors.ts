@@ -541,19 +541,19 @@ function _codes_init() {
     }
 
     String.prototype.hex = function (hex:string): string {
-        return _get_color_by_hex(hex, false);
+        return _get_color_by_hex(hex, false) + this + _reset_ctrl;
     }
 
     String.prototype.hex_bg = function (hex:string): string {
-        return _get_color_by_hex(hex, true);
+        return _get_color_by_hex(hex, true) + this + _reset_ctrl;
     }
 
     String.prototype.rgb = function (r:number, g:number, b:number): string {
-        return _get_color_by_rgb(r, g, b, false);
+        return _get_color_by_rgb(r, g, b, false) + this + _reset_ctrl;
     }
 
     String.prototype.rgb_bg = function (r:number, g:number, b:number): string {
-        return _get_color_by_rgb(r, g, b, true);
+        return _get_color_by_rgb(r, g, b, true) + this + _reset_ctrl;
     }
 
     String.prototype.paint = function (pt: { key: string | RegExp, colors: string | string[] }[]): string {

@@ -465,16 +465,16 @@ function _codes_init() {
         return colors(color, this, noreset);
     };
     String.prototype.hex = function (hex) {
-        return _get_color_by_hex(hex, false);
+        return _get_color_by_hex(hex, false) + this + _reset_ctrl;
     };
     String.prototype.hex_bg = function (hex) {
-        return _get_color_by_hex(hex, true);
+        return _get_color_by_hex(hex, true) + this + _reset_ctrl;
     };
     String.prototype.rgb = function (r, g, b) {
-        return _get_color_by_rgb(r, g, b, false);
+        return _get_color_by_rgb(r, g, b, false) + this + _reset_ctrl;
     };
     String.prototype.rgb_bg = function (r, g, b) {
-        return _get_color_by_rgb(r, g, b, true);
+        return _get_color_by_rgb(r, g, b, true) + this + _reset_ctrl;
     };
     String.prototype.paint = function (pt) {
         return paint(pt, this);
