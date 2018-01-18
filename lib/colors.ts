@@ -151,7 +151,18 @@ function _get_color_by_hex(hexcode: string, bg: boolean): string
     }
     if(_support < Support.ANSI256)
         return null;
-    if(bg)
+    if(_more_detail_on_color256)
+    {
+        if(bg)
+            return _get_web_safe_code_by_hex(hexcode, 
+                    _color_bg_web_safe_map, _color_bg_web_safe_list,
+                    _color_bg_gray_map, _color_bg_gray_list);
+        else
+            return _get_web_safe_code_by_hex(hexcode, 
+                    _color_web_safe_map, _color_web_safe_list,
+                    _color_gray_map, _color_gray_list);
+    }
+    else if(bg)
         return _get_web_safe_code_by_hex(hexcode, 
                 _color_bg_web_safe_map, _color_bg_web_safe_list);
     else
@@ -165,6 +176,17 @@ function _get_color_by_rgb(r:number, g:number, b:number, bg: boolean): string
         return bg ? _get_truecolor_bg(r, g, b) : _get_truecolor(r, g, b);
     if(_support < Support.ANSI256)
         return null;
+    if(_more_detail_on_color256)
+    {
+        if(bg)
+            return _get_web_safe_code_by_rgb(r, g, b, 
+                    _color_bg_web_safe_map, _color_bg_web_safe_list,
+                    _color_bg_gray_map, _color_bg_gray_list);
+        else
+            return _get_web_safe_code_by_rgb(r, g, b, 
+                    _color_web_safe_map, _color_web_safe_list,
+                    _color_bg_gray_map, _color_bg_gray_list);
+    }
     if(bg)
         return _get_web_safe_code_by_rgb(r, g, b, 
                 _color_bg_web_safe_map, _color_bg_web_safe_list);
@@ -175,34 +197,51 @@ function _get_color_by_rgb(r:number, g:number, b:number, bg: boolean): string
 
 function _get_web_safe_code_by_hex(hex:string, 
                                 map:{ [key: string]: string },
-                                list:{r:number, g:number, b:number, c:string}[])
+                                list:{r:number, g:number, b:number, c:string}[],
+                                map2?:{ [key: string]: string },
+                                list2?:{r:number, g:number, b:number, c:string}[])
 {
     let c = map[hex];
     if(c != null)
         return c;
+    if(map2 != null)
+    {
+        c = map2[hex];
+        if(c != null)
+            return c;
+    }
     let r = parseInt(hex[0]+hex[1], 16);
     let g = parseInt(hex[2]+hex[3], 16);
     let b = parseInt(hex[4]+hex[5], 16);
-    c = _get_web_safe_code_search(r, g, b, list);
+    c = _get_web_safe_code_search(r, g, b, list, list2);
     map[hex] = c;
     return c;
 }
 
 function _get_web_safe_code_by_rgb(r:number, g:number, b:number, 
                                 map:{ [key: string]: string },
-                                list:{r:number, g:number, b:number, c:string}[])
+                                list:{r:number, g:number, b:number, c:string}[],
+                                map2?:{ [key: string]: string },
+                                list2?:{r:number, g:number, b:number, c:string}[])
 {
     let hex = _n2h(r) + _n2h(g) + _n2h(b);
     let c = map[hex];
     if(c != null)
         return c;
-    c = _get_web_safe_code_search(r, g, b, list);
+    if(map2 != null)
+    {
+        c = map2[hex];
+        if(c != null)
+            return c;
+    }
+    c = _get_web_safe_code_search(r, g, b, list, list2);
     map[hex] = c;
     return c;
 }
 
 function _get_web_safe_code_search(r:number, g:number, b:number, 
-    list:{r:number, g:number, b:number, c:string}[]): string
+    list:{r:number, g:number, b:number, c:string}[],
+    list2?:{r:number, g:number, b:number, c:string}[]): string
 {
     let m = Number.MAX_VALUE;
     let c = null;
@@ -217,6 +256,18 @@ function _get_web_safe_code_search(r:number, g:number, b:number,
             c = item.c;
         }
     });
+    if(list2 != null) {
+        list2.forEach(item=>{
+            let v = (item.r - r)*(item.r - r) +
+                    (item.g - g)*(item.g - g) +
+                    (item.b - b)*(item.b - b);
+            if(v < m)
+            {
+                m = v;
+                c = item.c;
+            }
+        });
+    }
     return c;
 }
 
@@ -252,6 +303,10 @@ let _color_web_safe_map: { [key: string]: string } = null;
 let _color_web_safe_list: {r:number, g:number, b:number, c:string}[] = null;
 let _color_bg_web_safe_map: { [key: string]: string } = null;
 let _color_bg_web_safe_list: {r:number, g:number, b:number, c:string}[] = null;
+let _color_gray_map: { [key: string]: string } = null;
+let _color_gray_list: {r:number, g:number, b:number, c:string}[] = null;
+let _color_bg_gray_map: { [key: string]: string } = null;
+let _color_bg_gray_list: {r:number, g:number, b:number, c:string}[] = null;
 
 function _color_web_safe_map_init(): void {
     let hexs = ["0", "33", "66", "99", "cc", "ff"];
@@ -260,6 +315,10 @@ function _color_web_safe_map_init(): void {
     _color_web_safe_list = [];
     _color_bg_web_safe_map = {};
     _color_bg_web_safe_list = [];
+    _color_gray_map = {};
+    _color_gray_list = [];
+    _color_bg_gray_map = {};
+    _color_bg_gray_list = [];
 
     let startpos = 16;
     let key: [number, number, number] = [0, 0, 0];
@@ -289,6 +348,20 @@ function _color_web_safe_map_init(): void {
             b:hexns[key[0]], 
             c: c})
     }
+
+    for(let i=0; i<24; ++i)
+    {
+        let n = 8 + i * 10;
+        let hex = n.toString(16);
+        if(n < 0x10)
+            hex = '0' + hex;
+        let c = _color_256bits + (232 + i).toString() + _color_256bits_endl;
+        _color_gray_map[hex] = c;
+        _color_gray_list.push({r:n, g:n, b:n, c: c});
+        c = _color_256bits_bg + (232 + i).toString() + _color_256bits_bg_endl;
+        _color_bg_gray_map[hex] = c;
+        _color_bg_gray_list.push({r:n, g:n, b:n, c: c});
+    }
 }
 
 const _default_theme: { [key: string]: string | string[] } = {
@@ -312,6 +385,7 @@ const _default_theme: { [key: string]: string | string[] } = {
 export enum Support {DISABLE = 0, BASE = 1, ANSI256 = 2, ANSI24bits = 3};
 let _support: Support = Support.DISABLE;
 let _enable: boolean = true;
+let _more_detail_on_color256: boolean = false;
 let _theme: { [key: string]: string | string[] } = _default_theme
 
 function _check_reset_end(value: string): boolean {
@@ -466,6 +540,14 @@ function _codes_init() {
         return colors(color, this, noreset);
     }
 
+    String.prototype.hex = function (hex:string): string {
+        return _get_color_by_hex(hex, false);
+    }
+
+    String.prototype.hex_bg = function (hex:string): string {
+        return _get_color_by_hex(hex, true);
+    }
+
     String.prototype.rgb = function (r:number, g:number, b:number): string {
         return _get_color_by_rgb(r, g, b, false);
     }
@@ -618,6 +700,10 @@ export function show_cursor(show:boolean = true) {
     process.stdout.write(show ? _show_cursor_code : _hide_cursor_code);
 }
 
+export function more_detail_on_color256(value:boolean = true): boolean {
+    _more_detail_on_color256 = value;
+    return _more_detail_on_color256;
+}
 
 function replace_all(value: string, search: string, replace: string): string {
     if (search == null || search.length == 0)

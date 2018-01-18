@@ -232,16 +232,23 @@ declare global {
         custom8: string;
         custom9: string;
 
+        //[0, 255]
         color_at_256(idx:number):string;
         color_bg_at_256(idx:number):string;
+        //[0, 25]
         gray(level:number):string;
         grey(level:number):string;
         gray_bg(level:number):string;
         grey_bg(level:number):string;
+        // [000000, ffffff]
+        hex(hex:string): string;
+        hex_bg(hex:string): string;
+        // [0, 255]
         rgb(r:number, g:number, b:number): string;
         rgb_bg(r:number, g:number, b:number): string;
 
-        colors(color:string|string[], noreset?: boolean):string;
+        // keyword, #000000, b#000000
+        colors(color:string|string[], noreset?:boolean):string;
         paint(  paint:{
                     key:string|string[]|RegExp|RegExp[], 
                     colors:string|string[]
@@ -524,16 +531,23 @@ declare global {
         custom8: string;
         custom9: string;
 
+        //[0, 255]
         color_at_256(idx:number):string;
         color_bg_at_256(idx:number):string;
+        //[0, 25]
         gray(level:number):string;
         grey(level:number):string;
         gray_bg(level:number):string;
         grey_bg(level:number):string;
+        // [000000, ffffff]
+        hex(hex:string): string;
+        hex_bg(hex:string): string;
+        // [0, 255]
         rgb(r:number, g:number, b:number): string;
         rgb_bg(r:number, g:number, b:number): string;
 
-        colors(color:string|string[], noreset?: boolean):string;
+        // keyword, #000000, b#000000
+        colors(color:string|string[], noreset?:boolean):string;
         paint(  paint:{
                     key:string|string[]|RegExp|RegExp[], 
                     colors:string|string[]

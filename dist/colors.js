@@ -117,7 +117,13 @@ function _get_color_by_hex(hexcode, bg) {
     }
     if (_support < Support.ANSI256)
         return null;
-    if (bg)
+    if (_more_detail_on_color256) {
+        if (bg)
+            return _get_web_safe_code_by_hex(hexcode, _color_bg_web_safe_map, _color_bg_web_safe_list, _color_bg_gray_map, _color_bg_gray_list);
+        else
+            return _get_web_safe_code_by_hex(hexcode, _color_web_safe_map, _color_web_safe_list, _color_gray_map, _color_gray_list);
+    }
+    else if (bg)
         return _get_web_safe_code_by_hex(hexcode, _color_bg_web_safe_map, _color_bg_web_safe_list);
     else
         return _get_web_safe_code_by_hex(hexcode, _color_web_safe_map, _color_web_safe_list);
@@ -127,32 +133,48 @@ function _get_color_by_rgb(r, g, b, bg) {
         return bg ? _get_truecolor_bg(r, g, b) : _get_truecolor(r, g, b);
     if (_support < Support.ANSI256)
         return null;
+    if (_more_detail_on_color256) {
+        if (bg)
+            return _get_web_safe_code_by_rgb(r, g, b, _color_bg_web_safe_map, _color_bg_web_safe_list, _color_bg_gray_map, _color_bg_gray_list);
+        else
+            return _get_web_safe_code_by_rgb(r, g, b, _color_web_safe_map, _color_web_safe_list, _color_bg_gray_map, _color_bg_gray_list);
+    }
     if (bg)
         return _get_web_safe_code_by_rgb(r, g, b, _color_bg_web_safe_map, _color_bg_web_safe_list);
     else
         return _get_web_safe_code_by_rgb(r, g, b, _color_web_safe_map, _color_web_safe_list);
 }
-function _get_web_safe_code_by_hex(hex, map, list) {
+function _get_web_safe_code_by_hex(hex, map, list, map2, list2) {
     var c = map[hex];
     if (c != null)
         return c;
+    if (map2 != null) {
+        c = map2[hex];
+        if (c != null)
+            return c;
+    }
     var r = parseInt(hex[0] + hex[1], 16);
     var g = parseInt(hex[2] + hex[3], 16);
     var b = parseInt(hex[4] + hex[5], 16);
-    c = _get_web_safe_code_search(r, g, b, list);
+    c = _get_web_safe_code_search(r, g, b, list, list2);
     map[hex] = c;
     return c;
 }
-function _get_web_safe_code_by_rgb(r, g, b, map, list) {
+function _get_web_safe_code_by_rgb(r, g, b, map, list, map2, list2) {
     var hex = _n2h(r) + _n2h(g) + _n2h(b);
     var c = map[hex];
     if (c != null)
         return c;
-    c = _get_web_safe_code_search(r, g, b, list);
+    if (map2 != null) {
+        c = map2[hex];
+        if (c != null)
+            return c;
+    }
+    c = _get_web_safe_code_search(r, g, b, list, list2);
     map[hex] = c;
     return c;
 }
-function _get_web_safe_code_search(r, g, b, list) {
+function _get_web_safe_code_search(r, g, b, list, list2) {
     var m = Number.MAX_VALUE;
     var c = null;
     list.forEach(function (item) {
@@ -164,6 +186,17 @@ function _get_web_safe_code_search(r, g, b, list) {
             c = item.c;
         }
     });
+    if (list2 != null) {
+        list2.forEach(function (item) {
+            var v = (item.r - r) * (item.r - r) +
+                (item.g - g) * (item.g - g) +
+                (item.b - b) * (item.b - b);
+            if (v < m) {
+                m = v;
+                c = item.c;
+            }
+        });
+    }
     return c;
 }
 function _get_truecolor(r, g, b) {
@@ -192,6 +225,10 @@ var _color_web_safe_map = null;
 var _color_web_safe_list = null;
 var _color_bg_web_safe_map = null;
 var _color_bg_web_safe_list = null;
+var _color_gray_map = null;
+var _color_gray_list = null;
+var _color_bg_gray_map = null;
+var _color_bg_gray_list = null;
 function _color_web_safe_map_init() {
     var hexs = ["0", "33", "66", "99", "cc", "ff"];
     var hexns = [0, 0x33, 0x66, 0x99, 0xcc, 0xff];
@@ -199,6 +236,10 @@ function _color_web_safe_map_init() {
     _color_web_safe_list = [];
     _color_bg_web_safe_map = {};
     _color_bg_web_safe_list = [];
+    _color_gray_map = {};
+    _color_gray_list = [];
+    _color_bg_gray_map = {};
+    _color_bg_gray_list = [];
     var startpos = 16;
     var key = [0, 0, 0];
     for (var i = 0; i < 216; ++i, ++key[0]) {
@@ -229,6 +270,18 @@ function _color_web_safe_map_init() {
             c: c
         });
     }
+    for (var i = 0; i < 24; ++i) {
+        var n = 8 + i * 10;
+        var hex = n.toString(16);
+        if (n < 0x10)
+            hex = '0' + hex;
+        var c = _color_256bits + (232 + i).toString() + _color_256bits_endl;
+        _color_gray_map[hex] = c;
+        _color_gray_list.push({ r: n, g: n, b: n, c: c });
+        c = _color_256bits_bg + (232 + i).toString() + _color_256bits_bg_endl;
+        _color_bg_gray_map[hex] = c;
+        _color_bg_gray_list.push({ r: n, g: n, b: n, c: c });
+    }
 }
 var _default_theme = {
     verbose: "white",
@@ -257,6 +310,7 @@ var Support;
 ;
 var _support = Support.DISABLE;
 var _enable = true;
+var _more_detail_on_color256 = false;
 var _theme = _default_theme;
 function _check_reset_end(value) {
     return value.length >= _reset_ctrl.length &&
@@ -410,6 +464,12 @@ function _codes_init() {
     String.prototype.colors = function (color, noreset) {
         return colors(color, this, noreset);
     };
+    String.prototype.hex = function (hex) {
+        return _get_color_by_hex(hex, false);
+    };
+    String.prototype.hex_bg = function (hex) {
+        return _get_color_by_hex(hex, true);
+    };
     String.prototype.rgb = function (r, g, b) {
         return _get_color_by_rgb(r, g, b, false);
     };
@@ -558,6 +618,12 @@ function show_cursor(show) {
     process.stdout.write(show ? _show_cursor_code : _hide_cursor_code);
 }
 exports.show_cursor = show_cursor;
+function more_detail_on_color256(value) {
+    if (value === void 0) { value = true; }
+    _more_detail_on_color256 = value;
+    return _more_detail_on_color256;
+}
+exports.more_detail_on_color256 = more_detail_on_color256;
 function replace_all(value, search, replace) {
     if (search == null || search.length == 0)
         return value;

@@ -62,15 +62,22 @@ declare global {
         custom8: string;
         custom9: string;
 
+        //[0, 255]
         color_at_256(idx:number):string;
         color_bg_at_256(idx:number):string;
+        //[0, 25]
         gray(level:number):string;
         grey(level:number):string;
         gray_bg(level:number):string;
         grey_bg(level:number):string;
+        // [000000, ffffff]
+        hex(hex:string): string;
+        hex_bg(hex:string): string;
+        // [0, 255]
         rgb(r:number, g:number, b:number): string;
         rgb_bg(r:number, g:number, b:number): string;
 
+        // keyword, #000000, b#000000
         colors(color:string|string[], noreset?:boolean):string;
         paint(  paint:{
                     key:string|string[]|RegExp|RegExp[], 
@@ -104,7 +111,8 @@ declare namespace Colors
     }
     export function colors(color: string|string[], value: string, noreset?: boolean):string;
     export function enable(value?: boolean): void;
-    export function support(support?: Support): Support
+    export function support(support?: Support): Support;
+    export function more_detail_on_color256(value?: boolean): boolean;
     export function theme(theme?: {[key:string]:string|string[]}): void;
     export function paint(paint:{key:string|string[]|RegExp|RegExp[], colors:string|string[]}[], value:string):string
     export function position(x:number, y:number): void;
