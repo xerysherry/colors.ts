@@ -552,7 +552,7 @@ function _codes_init() {
         return _get_color_by_rgb(r, g, b, false);
     }
 
-    String.prototype.rgb = function (r:number, g:number, b:number): string {
+    String.prototype.rgb_bg = function (r:number, g:number, b:number): string {
         return _get_color_by_rgb(r, g, b, true);
     }
 

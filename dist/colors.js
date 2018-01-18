@@ -473,7 +473,7 @@ function _codes_init() {
     String.prototype.rgb = function (r, g, b) {
         return _get_color_by_rgb(r, g, b, false);
     };
-    String.prototype.rgb = function (r, g, b) {
+    String.prototype.rgb_bg = function (r, g, b) {
         return _get_color_by_rgb(r, g, b, true);
     };
     String.prototype.paint = function (pt) {
