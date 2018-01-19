@@ -292,10 +292,20 @@ function _get_code(color: string) {
         return code;
 
     color = color.toLowerCase();
-    if (color.charAt(0) == "#")
+    if (color.charAt(0) == '#')
         return _get_color_by_hex(color.slice(1), false);
-    else if (color.charAt(0) == 'b' && color.charAt(1) == "#")
-        return _get_color_by_hex(color.slice(2), true);
+    else if (color.charAt(0) == 'g')
+        return _get_gray_code(parseInt(color.slice(1)));
+    else if (color.charAt(0) == 'b')
+    {
+        // b#
+        if(color.charAt(1) == '#')
+            return _get_color_by_hex(color.slice(2), true);
+        // bg
+        else if(color.charAt(1) == 'g')
+            return _get_gray_bg_code(parseInt(color.slice(2)));
+
+    }
     return code;
 }
 
@@ -367,8 +377,8 @@ function _color_web_safe_map_init(): void {
 const _default_theme: { [key: string]: string | string[] } = {
     verbose: "white",
     info: "green",
-    warning: "yellow",
     debug: "blue",
+    warning: "yellow",
     error: "red",
     // custom
     custom0: "white",
@@ -556,7 +566,7 @@ function _codes_init() {
         return _get_color_by_rgb(r, g, b, true) + this + _reset_ctrl;
     }
 
-    String.prototype.paint = function (pt: { key: string | RegExp, colors: string | string[] }[]): string {
+    String.prototype.paint = function (pt: Painter[]): string {
         return paint(pt, this);
     }
 
@@ -727,7 +737,20 @@ function replace_all(value: string, search: string, replace: string): string {
     return value;
 }
 
-export function paint(paint: { key: string | string[] | RegExp | RegExp[], colors: string | string[] }[], value: string): string {
+export interface Painter
+{
+    // match mode, string, regex, array of string, array of regex
+    key: string | string[] | RegExp | RegExp[];
+    // color style
+    // keyword, like "underline", "bold", "red", "green", "bg_reg", "bg_green"
+    // hexcode, like "#ff00ff", "#337011"
+    // hexcode for bg, like "b#ff00ff", "b#337011"
+    // graycode like "g11", "g25"
+    // graycode fro by like "bg11, "bg25""
+    colors: string | string[];
+}
+
+export function paint(paint: Painter[], value: string): string {
     if (!_enable || paint == null || value == null || value.length == 0 || paint.length == 0)
         return value;
     for (let i = 0; i < paint.length; ++i) {

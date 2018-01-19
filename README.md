@@ -79,7 +79,7 @@ Colors.theme({error:["bg_red", "underline"]})
 console.log("this is a error".error);
 ```
 
-Theme have 4 useful propertis(verbose, info, debug, error) and 10 custom properties(custom0 ~ custom10).
+Theme have 5 useful propertis(verbose, info, debug, warning, error) and 10 custom properties(custom0 ~ custom10).
 
 Gray and 256 colors 
 -------------------
@@ -163,9 +163,9 @@ Colors.theme(theme: { [key: string]: string | string[] }): void
 
 * set theme
 
-Colors.paint(paint: { key: string | string[] | RegExp | RegExp[], colors: string | string[] }[], value: string): string
+Colors.paint(paint: Colors.Painter[], value: string): string
 
-* paint
+* paint, Painter see [#define]
 
 Colors.position(x:number, y:number): void
 
@@ -183,7 +183,25 @@ Colors.support(support?: Colors.Support): Support
 
 * set support level, {DISABLE, BASE, ANSI256, ANSI24bits}
 
+interface Colors.Painter define
+
+```TypeScript
+interface Painter
+{
+    // match mode, string, regex, array of string, array of regex
+    key: string | string[] | RegExp | RegExp[];
+    // color style
+    // keyword, like "underline", "bold", "red", "green", "bg_reg", "bg_green"
+    // hexcode, like "#ff00ff", "#337011"
+    // hexcode for bg, like "b#ff00ff", "b#337011"
+    // graycode like "g11", "g25"
+    // graycode fro by like "bg11, "bg25""
+    colors: string | string[];
+}
+```
+
 String Extend
+-------------
 
 ```TypeScript 
 declare global {
@@ -249,10 +267,7 @@ declare global {
 
         // keyword, #000000, b#000000
         colors(color:string|string[], noreset?:boolean):string;
-        paint(  paint:{
-                    key:string|string[]|RegExp|RegExp[], 
-                    colors:string|string[]
-                }[]):string;
+        paint(paint:Colors.Painter[]):string;
 
         up(n?:number):string;
         down(n?:number):string;
@@ -376,7 +391,7 @@ Colors.theme({error:"bgRed"})
 console.log("this is a error".error);
 ```
 
-主题相关属性包括，verbose, info, debug, error四个常用的，以及custom0~custom9十个自定义位置。
+主题相关属性包括，verbose, info, debug, warning, error五个常用的，以及custom0~custom9十个自定义位置。
 
 灰度和256色 
 ----------
@@ -460,9 +475,9 @@ Colors.theme(theme: { [key: string]: string | string[] }): void
 
 * 设置主题
 
-Colors.paint(paint: { key: string | string[] | RegExp | RegExp[], colors: string | string[] }[], value: string): string
+Colors.paint(paint: Painter[], value: string): string
 
-* 着色
+* 着色, Painter结构参看定义
 
 Colors.position(x:number, y:number): void
 
@@ -481,6 +496,26 @@ String扩展的属性与函数
 Colors.support(support?: Colors.Support): Support
 
 * 支持颜色级别, {DISABLE, BASE, ANSI256, ANSI24bits}
+
+结构Colors.Painter定义
+
+```TypeScript
+interface Painter
+{
+    // match mode, string, regex, array of string, array of regex
+    key: string | string[] | RegExp | RegExp[];
+    // color style
+    // keyword, like "underline", "bold", "red", "green", "bg_reg", "bg_green"
+    // hexcode, like "#ff00ff", "#337011"
+    // hexcode for bg, like "b#ff00ff", "b#337011"
+    // graycode like "g11", "g25"
+    // graycode fro by like "bg11, "bg25""
+    colors: string | string[];
+}
+```
+
+String扩展定义
+-------------
 
 ```TypeScript 
 declare global {
@@ -502,8 +537,6 @@ declare global {
         magenta: string;
         cyan: string;
         white: string;
-        //gray: string;
-        //grey: string;
 
         bg_black: string;
         bg_red: string;
@@ -548,10 +581,7 @@ declare global {
 
         // keyword, #000000, b#000000
         colors(color:string|string[], noreset?:boolean):string;
-        paint(  paint:{
-                    key:string|string[]|RegExp|RegExp[], 
-                    colors:string|string[]
-                }[]):string;
+        paint(paint:Colors.Painter[]):string;
 
         up(n?:number):string;
         down(n?:number):string;

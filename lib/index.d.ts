@@ -79,10 +79,7 @@ declare global {
 
         // keyword, #000000, b#000000
         colors(color:string|string[], noreset?:boolean):string;
-        paint(  paint:{
-                    key:string|string[]|RegExp|RegExp[], 
-                    colors:string|string[]
-                }[]):string;
+        paint(paint:Colors.Painter[]):string;
 
         up(n?:number):string;
         down(n?:number):string;
@@ -108,6 +105,19 @@ declare namespace Colors
         BASE = 1,
         ANSI256 = 2, 
         ANSI24bits = 3,
+    }
+    // Painter
+    export interface Painter
+    {
+        // match mode, string, regex, array of string, array of regex
+        key: string | string[] | RegExp | RegExp[];
+        // color style
+        // keyword, like "underline", "bold", "red", "green", "bg_reg", "bg_green"
+        // hexcode, like "#ff00ff", "#337011"
+        // hexcode for bg, like "b#ff00ff", "b#337011"
+        // graycode like "g11", "g25"
+        // graycode fro by like "bg11, "bg25""
+        colors: string | string[];
     }
     export function colors(color: string|string[], value: string, noreset?: boolean):string;
     export function enable(value?: boolean): void;

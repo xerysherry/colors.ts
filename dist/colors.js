@@ -215,10 +215,16 @@ function _get_code(color) {
     if (code != null)
         return code;
     color = color.toLowerCase();
-    if (color.charAt(0) == "#")
+    if (color.charAt(0) == '#')
         return _get_color_by_hex(color.slice(1), false);
-    else if (color.charAt(0) == 'b' && color.charAt(1) == "#")
-        return _get_color_by_hex(color.slice(2), true);
+    else if (color.charAt(0) == 'g')
+        return _get_gray_code(parseInt(color.slice(1)));
+    else if (color.charAt(0) == 'b') {
+        if (color.charAt(1) == '#')
+            return _get_color_by_hex(color.slice(2), true);
+        else if (color.charAt(1) == 'g')
+            return _get_gray_bg_code(parseInt(color.slice(2)));
+    }
     return code;
 }
 var _color_web_safe_map = null;
@@ -286,8 +292,8 @@ function _color_web_safe_map_init() {
 var _default_theme = {
     verbose: "white",
     info: "green",
-    warning: "yellow",
     debug: "blue",
+    warning: "yellow",
     error: "red",
     custom0: "white",
     custom1: "white",

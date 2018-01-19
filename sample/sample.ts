@@ -18,8 +18,6 @@ console.log(colors("blue", "blue"));
 console.log(colors("magenta", "magenta"));
 console.log(colors("cyan", "cyan"));
 console.log(colors("white", "white"));
-console.log(colors("gray", "gray"));
-console.log(colors("grey", "grey"));
 
 console.log(colors("bg_black", "bg_black"));
 console.log(colors("bg_red", "bg_red"));
@@ -34,6 +32,7 @@ console.log(colors("bg_white", "bg_white"));
 console.log(colors("verbose", "verbose"));
 console.log(colors("info", "info"));
 console.log(colors("debug", "debug"));
+console.log(colors("warning", "warning"));
 console.log(colors("error", "error"));
 
 console.log(colors("custom0", "custom0"));
@@ -79,6 +78,7 @@ console.log("bg_white".bg_white);
 console.log("normal".verbose);
 console.log("info".info);
 console.log("debug".debug);
+console.log("warning".warning);
 console.log("error".error);
 
 console.log("custom0".custom0);
