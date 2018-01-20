@@ -559,9 +559,16 @@ function _theme_init() {
         _loop_2(key);
     }
 }
-_color_web_safe_map_init();
-_codes_init();
-_theme_init();
+var _ready = false;
+function _init() {
+    if (_ready)
+        return;
+    _ready = true;
+    _color_web_safe_map_init();
+    _codes_init();
+    _theme_init();
+}
+_init();
 function colors(color, value, noreset) {
     if (_enable) {
         if (_support < Support.BASE)

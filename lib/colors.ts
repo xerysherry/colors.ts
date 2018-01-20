@@ -644,9 +644,17 @@ function _theme_init() {
     }
 }
 
-_color_web_safe_map_init();
-_codes_init();
-_theme_init();
+let _ready: boolean = false;
+function _init()
+{
+    if(_ready)
+        return;
+    _ready = true;
+    _color_web_safe_map_init();
+    _codes_init();
+    _theme_init();
+}
+_init();
 
 export function colors(color: string | string[], value: string, noreset?: boolean): string {
     if (_enable) {
