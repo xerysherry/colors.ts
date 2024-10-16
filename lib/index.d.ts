@@ -16,7 +16,7 @@
 declare global {
     interface String {
         reset: string;
-        bold: string;
+        //bold: string;
         dim: string;
         italic: string;
         underline: string;
